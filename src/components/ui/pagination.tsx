@@ -1,0 +1,42 @@
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+interface PaginationProps {
+  total: number;
+  limit: number;
+  offset: number;
+  onChange: (offset: number) => void;
+  loading?: boolean;
+}
+
+export function Pagination({ total, limit, offset, onChange, loading }: PaginationProps) {
+  if (total <= limit) return null;
+  const from = offset + 1;
+  const to = Math.min(offset + limit, total);
+
+  return (
+    <nav aria-label="Pagination" className="flex items-center justify-between gap-4 pt-2">
+      <p className="text-muted-foreground text-sm">
+        Showing {from}–{to} of {total}
+      </p>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={offset === 0 || loading}
+          onClick={() => onChange(Math.max(0, offset - limit))}
+        >
+          <ChevronLeft /> Previous
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={offset + limit >= total || loading}
+          onClick={() => onChange(offset + limit)}
+        >
+          Next <ChevronRight />
+        </Button>
+      </div>
+    </nav>
+  );
+}
