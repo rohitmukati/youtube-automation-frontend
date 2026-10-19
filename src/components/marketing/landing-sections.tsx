@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   ArrowRight,
   CalendarClock,
+  Check,
   FolderOpen,
   Gauge,
   KeyRound,
@@ -175,14 +176,15 @@ export function HowItWorks() {
         </h2>
         <ol className="mt-14 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map((step, index) => (
-            <li key={step.title} className="relative">
-              <span className="bg-primary text-primary-foreground grid size-10 place-items-center rounded-full text-sm font-medium">
-                {index + 1}
+            <li key={step.title} className="how-step relative">
+              <span className="how-step-indicator bg-primary text-primary-foreground relative grid size-10 place-items-center rounded-full text-sm font-medium">
+                <span className="how-step-number">{index + 1}</span>
+                <Check className="how-step-check absolute size-4" aria-hidden />
               </span>
               {index < steps.length - 1 ? (
                 <span
                   aria-hidden
-                  className="bg-border absolute top-5 left-14 hidden h-px w-[calc(100%-3.5rem)] lg:block"
+                  className="how-step-line bg-border absolute top-5 left-14 hidden h-px w-[calc(100%-3.5rem)] lg:block"
                 />
               ) : null}
               <h3 className="text-foreground mt-5 text-base font-semibold">{step.title}</h3>

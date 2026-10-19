@@ -3,6 +3,12 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@property --metric-count {
+  syntax: "<integer>";
+  inherits: false;
+  initial-value: 0;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #0c0a09;
@@ -128,6 +134,16 @@
   }
 }
 
+@keyframes dashboard-glow {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(1.5%, -1%, 0) scale(1.04);
+  }
+}
+
 @keyframes pulse-dot {
   0%,
   100% {
@@ -199,6 +215,36 @@
 }
 
 @layer utilities {
+  .dashboard-ambient {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .dashboard-ambient::before {
+    position: absolute;
+    z-index: 0;
+    inset: -5rem -3rem;
+    pointer-events: none;
+    content: "";
+    background:
+      radial-gradient(
+        ellipse 30rem 24rem at 28% 18%,
+        color-mix(in srgb, var(--orb-c) 7%, transparent),
+        transparent 72%
+      ),
+      radial-gradient(
+        ellipse 28rem 24rem at 78% 78%,
+        color-mix(in srgb, var(--orb-a) 8%, transparent),
+        transparent 72%
+      );
+    animation: dashboard-glow 32s ease-in-out infinite;
+  }
+
+  .dashboard-ambient > * {
+    position: relative;
+    z-index: 1;
+  }
+
   .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: var(--border-strong) transparent;
@@ -230,11 +276,9 @@
 @keyframes pop-in {
   from {
     opacity: 0;
-    transform: translate(-50%, -48%) scale(0.97);
   }
   to {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
   }
 }
 
@@ -306,21 +350,567 @@
   }
 }
 
+@keyframes demo-connect-stage {
+  0%,
+  63.3% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  66.7%,
+  96.7% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes demo-upload-stage {
+  0%,
+  30% {
+    opacity: 1;
+  }
+  33.3%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes demo-analytics-stage {
+  0%,
+  30% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  33.3%,
+  63.3% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  66.7%,
+  100% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes demo-chart-grow {
+  0%,
+  33.3% {
+    transform: scaleY(0.2);
+  }
+  66.7%,
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes demo-metric-count {
+  0%,
+  33.3% {
+    --metric-count: 0;
+  }
+  66.7%,
+  100% {
+    --metric-count: var(--metric-target);
+  }
+}
+
 @layer utilities {
+  .demo-sequence {
+    display: grid;
+  }
+
+  .demo-sequence > * {
+    grid-area: 1 / 1;
+    min-width: 0;
+  }
+
+  .demo-upload-stage {
+    animation: demo-upload-stage 15s ease-in-out infinite;
+  }
+
+  .demo-analytics-stage {
+    animation: demo-analytics-stage 15s ease-in-out infinite;
+  }
+
+  .demo-connect-stage {
+    animation: demo-connect-stage 15s ease-in-out infinite;
+  }
+
+  .demo-channel-row {
+    opacity: 0;
+    animation: demo-channel-enter 15s ease-out infinite;
+    animation-delay: calc(var(--channel-index) * 100ms);
+  }
+
+  .demo-channel-check {
+    animation: demo-check-pop 15s ease-out infinite;
+    animation-delay: calc(var(--channel-index) * 100ms);
+  }
+
+  .demo-connect-pulse {
+    animation: pulse-dot 1.6s ease-in-out infinite;
+  }
+
+  .demo-chart-bar {
+    transform: scaleY(0.2);
+    transform-origin: bottom;
+    animation: demo-chart-grow 15s cubic-bezier(0.2, 0.75, 0.25, 1) infinite;
+    animation-delay: calc(var(--chart-index) * 60ms);
+  }
+
+  .demo-metric-count {
+    counter-reset: demo-metric var(--metric-count);
+    animation: demo-metric-count 15s linear infinite;
+  }
+
+  .demo-metric-count::after {
+    content: counter(demo-metric);
+  }
+
   .demo-bar {
-    animation: fill-bar 9s cubic-bezier(0.3, 0.6, 0.3, 1) infinite;
+    animation: fill-bar 5s cubic-bezier(0.3, 0.6, 0.3, 1) infinite;
   }
   .demo-vis-a {
-    animation: vis-0-70 9s linear infinite;
+    animation: vis-0-70 5s linear infinite;
   }
   .demo-vis-b {
-    animation: vis-70-100 9s linear infinite;
+    animation: vis-70-100 5s linear infinite;
   }
   .demo-vis-a2 {
-    animation: vis-0-40 9s linear infinite;
+    animation: vis-0-40 5s linear infinite;
   }
   .demo-vis-m2 {
-    animation: vis-40-70 9s linear infinite;
+    animation: vis-40-70 5s linear infinite;
+  }
+}
+
+@keyframes demo-channel-enter {
+  0%,
+  63.3% {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  66.7%,
+  96.7% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+}
+
+@keyframes demo-check-pop {
+  0%,
+  65% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  68%,
+  96.7% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes how-step-one {
+  0%,
+  3% {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 0%, transparent);
+  }
+  6%,
+  97% {
+    background-color: var(--success);
+    color: white;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 16%, transparent);
+  }
+  100% {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 0%, transparent);
+  }
+}
+
+@keyframes how-step-two {
+  0%,
+  24% {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 0%, transparent);
+  }
+  27% {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 14%, transparent);
+  }
+  30%,
+  97% {
+    background-color: var(--success);
+    color: white;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 16%, transparent);
+  }
+  100% {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 0%, transparent);
+  }
+}
+
+@keyframes how-step-three {
+  0%,
+  49% {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 0%, transparent);
+  }
+  52% {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 14%, transparent);
+  }
+  55%,
+  97% {
+    background-color: var(--success);
+    color: white;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 16%, transparent);
+  }
+  100% {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 0%, transparent);
+  }
+}
+
+@keyframes how-step-four {
+  0%,
+  74% {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 0%, transparent);
+  }
+  77% {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 14%, transparent);
+  }
+  80%,
+  97% {
+    background-color: var(--success);
+    color: white;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 16%, transparent);
+  }
+  100% {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 0%, transparent);
+  }
+}
+
+@keyframes how-step-complete {
+  0%,
+  3% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  6%,
+  97% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes how-step-number-hide {
+  0%,
+  3% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  6%,
+  97% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes how-step-number-two {
+  0%,
+  24% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  27%,
+  100% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes how-step-number-three {
+  0%,
+  49% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  52%,
+  100% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes how-step-number-four {
+  0%,
+  74% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  77%,
+  100% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes how-step-check-two {
+  0%,
+  24% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  27%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes how-step-check-three {
+  0%,
+  49% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  52%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes how-step-check-four {
+  0%,
+  74% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  77%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes how-line-one {
+  0%,
+  6% {
+    transform: scaleX(0);
+  }
+  9%,
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes how-line-two {
+  0%,
+  30% {
+    transform: scaleX(0);
+  }
+  33%,
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes how-line-three {
+  0%,
+  55% {
+    transform: scaleX(0);
+  }
+  58%,
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+@layer utilities {
+  .how-step-indicator {
+    animation-duration: 12s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+  }
+
+  .how-step-number,
+  .how-step-check {
+    animation-duration: 12s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+  }
+
+  .how-step:nth-child(1) .how-step-indicator {
+    animation-name: how-step-one;
+  }
+
+  .how-step:nth-child(1) .how-step-number {
+    animation-name: how-step-number-hide;
+  }
+
+  .how-step:nth-child(1) .how-step-check {
+    animation-name: how-step-complete;
+  }
+
+  .how-step:nth-child(2) .how-step-indicator {
+    animation-name: how-step-two;
+  }
+
+  .how-step:nth-child(2) .how-step-number {
+    animation-name: how-step-number-two;
+  }
+
+  .how-step:nth-child(2) .how-step-check {
+    animation-name: how-step-check-two;
+  }
+
+  .how-step:nth-child(3) .how-step-indicator {
+    animation-name: how-step-three;
+  }
+
+  .how-step:nth-child(3) .how-step-number {
+    animation-name: how-step-number-three;
+  }
+
+  .how-step:nth-child(3) .how-step-check {
+    animation-name: how-step-check-three;
+  }
+
+  .how-step:nth-child(4) .how-step-indicator {
+    animation-name: how-step-four;
+  }
+
+  .how-step:nth-child(4) .how-step-number {
+    animation-name: how-step-number-four;
+  }
+
+  .how-step:nth-child(4) .how-step-check {
+    animation-name: how-step-check-four;
+  }
+
+  .how-step-line {
+    overflow: hidden;
+  }
+
+  .how-step-line::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background-color: var(--success);
+    transform: scaleX(0);
+    transform-origin: left;
+    animation-duration: 12s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+  }
+
+  .how-step:nth-child(1) .how-step-line::after {
+    animation-name: how-line-one;
+  }
+
+  .how-step:nth-child(2) .how-step-line::after {
+    animation-name: how-line-two;
+  }
+
+  .how-step:nth-child(3) .how-step-line::after {
+    animation-name: how-line-three;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-upload-stage {
+    animation: none;
+    opacity: 0;
+  }
+
+  .demo-analytics-stage {
+    animation: none;
+    opacity: 0;
+    transform: none;
+  }
+
+  .demo-connect-stage {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .demo-channel-row,
+  .demo-channel-check,
+  .demo-chart-bar {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .demo-metric-count {
+    animation: none;
+    --metric-count: var(--metric-target);
+  }
+
+  .demo-connect-pulse {
+    animation: none;
+  }
+
+  .how-step-indicator,
+  .how-step-number,
+  .how-step-line::after {
+    animation: none;
+  }
+
+  .how-step-indicator {
+    background-color: var(--success);
+    color: white;
+  }
+
+  .how-step-number {
+    opacity: 0;
+  }
+
+  .how-step-check {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .how-step-line::after {
+    transform: scaleX(1);
   }
 }
 

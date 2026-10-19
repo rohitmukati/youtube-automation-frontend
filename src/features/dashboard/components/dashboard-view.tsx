@@ -6,7 +6,7 @@ import { RecentUploadsCard } from "@/features/dashboard/components/recent-upload
 
 export function DashboardView() {
   return (
-    <div className="flex flex-col gap-12">
+    <div className="dashboard-ambient flex flex-col gap-12">
       <section className="flex flex-col items-center gap-8 pt-4 sm:pt-10">
         <h1 className="text-foreground text-center text-[34px] leading-tight font-medium tracking-tight sm:text-[40px]">
           What would you like to publish today?
