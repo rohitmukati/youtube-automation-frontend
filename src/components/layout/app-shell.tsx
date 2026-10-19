@@ -8,6 +8,7 @@ import { SidebarContent } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { Dialog, DialogDescription, DialogTitle, SheetContent } from "@/components/ui/dialog";
 import { useSidebarCollapsed } from "@/hooks/use-sidebar-preference";
+import { cn } from "@/lib/utils";
 
 function useMediaQuery(query: string): boolean {
   return React.useSyncExternalStore(
@@ -61,11 +62,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         Skip to content
       </a>
 
-      {isDesktop && !collapsed ? (
-        <aside className="border-border bg-background sticky top-0 hidden h-dvh w-[17rem] shrink-0 border-r lg:block">
+      <aside
+        aria-hidden={collapsed}
+        inert={collapsed}
+        className={cn(
+          "border-border bg-background sticky top-0 hidden h-dvh shrink-0 overflow-hidden transition-[width,opacity] duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] lg:block",
+          collapsed ? "w-0 border-r-0 opacity-0" : "w-[17rem] border-r opacity-100",
+        )}
+      >
+        <div className="h-full w-[17rem]">
           <SidebarContent />
-        </aside>
-      ) : null}
+        </div>
+      </aside>
 
       <Dialog open={!isDesktop && mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent>

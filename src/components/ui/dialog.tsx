@@ -10,7 +10,7 @@ export const DialogTrigger = DialogPrimitive.Trigger;
 export const DialogClose = DialogPrimitive.Close;
 
 const overlayClasses =
-  "fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] data-[state=open]:animate-[fade_0.2s_ease-out]";
+  "fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] data-[state=open]:animate-[fade_0.35s_cubic-bezier(0.22,1,0.36,1)] data-[state=closed]:animate-[fade-out_0.35s_cubic-bezier(0.4,0,0.2,1)]";
 
 interface DialogContentProps extends React.ComponentPropsWithoutRef<
   typeof DialogPrimitive.Content
@@ -107,7 +107,7 @@ export const SheetContent = React.forwardRef<
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          "border-border bg-background shadow-float fixed inset-y-0 left-0 z-50 flex w-[19rem] max-w-[85vw] flex-col border-r data-[state=open]:animate-[slide-in-left_0.25s_ease-out]",
+          "border-border bg-background shadow-float fixed inset-y-0 left-0 z-50 flex w-[19rem] max-w-[85vw] flex-col border-r data-[state=open]:animate-[slide-in-left_0.4s_cubic-bezier(0.22,1,0.36,1)] data-[state=closed]:animate-[slide-out-left_0.35s_cubic-bezier(0.4,0,0.2,1)]",
           className,
         )}
         {...props}
