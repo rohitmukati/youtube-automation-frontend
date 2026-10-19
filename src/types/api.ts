@@ -79,6 +79,7 @@ export interface YouTubeCredentialsResponse {
   client_secret_saved: boolean;
   redirect_uri: string;
   updated_at: string | null;
+  message?: string | null;
 }
 
 export interface YouTubeCredentialsPayload {
@@ -91,6 +92,7 @@ export interface YouTubeCredentialsStatus {
   clientId: string | null;
   redirectUrl: string | null;
   updatedAt: string | null;
+  message: string | null;
 }
 
 export type StorageFileType = "video" | "image";

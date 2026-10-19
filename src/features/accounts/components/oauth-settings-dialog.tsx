@@ -27,6 +27,7 @@ import {
   useSaveCredentials,
 } from "@/features/accounts/hooks";
 import { getErrorMessage } from "@/lib/api/errors";
+import { applyServerErrors } from "@/lib/forms";
 
 interface OAuthSettingsDialogProps {
   open: boolean;
@@ -77,6 +78,15 @@ export function OAuthSettingsDialog({
           form.reset(emptyValues);
           onSaved?.();
           handleOpenChange(false);
+        },
+        onError: (error) => {
+          const { handled, error: apiError } = applyServerErrors(error, form.setError, {
+            client_id: "clientId",
+            client_secret: "clientSecret",
+          });
+          if (handled) {
+            form.setFocus(apiError.details[0]?.field === "client_secret" ? "clientSecret" : "clientId");
+          }
         },
       },
     );

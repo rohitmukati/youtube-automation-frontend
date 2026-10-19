@@ -1,18 +1,13 @@
 import { z } from "zod";
 import type { YouTubeCredentialsResponse, YouTubeCredentialsStatus } from "@/types/api";
 
-// Mirrors the backend validation (google_client_id_pattern and the client secret length limits).
-const CLIENT_ID_PATTERN = /^[A-Za-z0-9._-]{8,200}\.apps\.googleusercontent\.com$/;
-
+// Only basic checks here; the server verifies the Client ID and Secret with Google.
 export const credentialsSchema = z.object({
   clientId: z
     .string()
     .trim()
     .min(1, "Enter your Google Client ID.")
-    .max(255, "That Client ID is too long.")
-    .refine((value) => value === "" || CLIENT_ID_PATTERN.test(value), {
-      message: "Client ID looks like 1234567890-abc123.apps.googleusercontent.com",
-    }),
+    .max(255, "That Client ID is too long."),
   clientSecret: z
     .string()
     .trim()
@@ -30,5 +25,6 @@ export function toCredentialsStatus(response: YouTubeCredentialsResponse): YouTu
     clientId: response.client_id ?? null,
     redirectUrl: response.redirect_uri || null,
     updatedAt: response.updated_at ?? null,
+    message: response.message ?? null,
   };
 }

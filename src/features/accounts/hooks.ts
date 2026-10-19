@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { accountsApi, credentialsApi } from "@/features/accounts/api";
-import { getErrorMessage } from "@/lib/api/errors";
+import { getErrorMessage, toApiError } from "@/lib/api/errors";
 import { queryKeys } from "@/lib/query-keys";
 
 export function useAccounts() {
@@ -77,9 +77,13 @@ export function useSaveCredentials() {
       queryClient.setQueryData(queryKeys.credentials, status);
       // Changing the Client ID flags connected channels as "needs reconnect" on the server.
       await queryClient.invalidateQueries({ queryKey: queryKeys.accounts.all });
-      toast.success("Google OAuth credentials saved.");
+      toast.success(status.message ?? "Google OAuth credentials saved.");
     },
-    onError: (error) => toast.error(getErrorMessage(error)),
+    // The form shows field-level errors; the toast only covers failures that have no field.
+    onError: (error) => {
+      const { details } = toApiError(error);
+      if (details.length === 0) toast.error(getErrorMessage(error));
+    },
   });
 }
 

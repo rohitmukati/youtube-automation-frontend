@@ -11,8 +11,12 @@ describe("credentialsSchema", () => {
     expect(credentialsSchema.safeParse(valid).success).toBe(true);
   });
 
-  it("rejects a client id without the Google suffix", () => {
-    expect(credentialsSchema.safeParse({ ...valid, clientId: "abc" }).success).toBe(false);
+  it("accepts a client id in any format", () => {
+    expect(credentialsSchema.safeParse({ ...valid, clientId: "abc" }).success).toBe(true);
+  });
+
+  it("rejects an empty client id", () => {
+    expect(credentialsSchema.safeParse({ ...valid, clientId: "   " }).success).toBe(false);
   });
 
   it("rejects empty, short or spaced secrets", () => {
@@ -39,6 +43,7 @@ describe("toCredentialsStatus", () => {
       clientId: "x.apps.googleusercontent.com",
       redirectUrl: "http://localhost:8000/api/v1/youtube/callback",
       updatedAt: "2026-10-18T10:00:00Z",
+      message: null,
     });
   });
 
@@ -56,6 +61,20 @@ describe("toCredentialsStatus", () => {
       clientId: null,
       redirectUrl: "http://localhost:8000/api/v1/youtube/callback",
       updatedAt: null,
+      message: null,
     });
+  });
+
+  it("keeps the server message", () => {
+    expect(
+      toCredentialsStatus({
+        configured: true,
+        client_id: "x.apps.googleusercontent.com",
+        client_secret_saved: true,
+        redirect_uri: "http://localhost:8000/api/v1/youtube/callback",
+        updated_at: null,
+        message: "Your Google credentials were verified and saved.",
+      }).message,
+    ).toBe("Your Google credentials were verified and saved.");
   });
 });
