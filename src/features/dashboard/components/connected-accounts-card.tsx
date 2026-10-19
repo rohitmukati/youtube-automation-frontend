@@ -53,9 +53,11 @@ export function ConnectedAccountsCard() {
                   size={40}
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="text-foreground truncate text-sm font-medium">{account.nickname}</p>
-                  <p className="text-muted-foreground truncate text-[13px]">
+                  <p className="text-foreground truncate text-sm font-medium">
                     {account.channel_title}
+                  </p>
+                  <p className="text-muted-foreground truncate text-xs">
+                    {account.nickname}
                   </p>
                 </div>
                 <AccountStatusBadge account={account} />

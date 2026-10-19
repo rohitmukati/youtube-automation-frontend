@@ -38,8 +38,10 @@ export function AccountCard({
       <div className="flex items-start gap-4">
         <Avatar src={account.channel_thumbnail_url} name={account.channel_title} size={52} />
         <div className="min-w-0 flex-1">
-          <h3 className="text-foreground truncate text-base font-semibold">{account.nickname}</h3>
-          <p className="text-muted-foreground truncate text-sm">{account.channel_title}</p>
+          <h3 className="text-foreground truncate text-base font-semibold">
+            {account.channel_title}
+          </h3>
+          <p className="text-muted-foreground truncate text-[13px]">{account.nickname}</p>
           <div className="mt-2">
             <AccountStatusBadge account={account} />
           </div>

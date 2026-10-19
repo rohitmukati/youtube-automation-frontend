@@ -81,10 +81,15 @@ function ConnectedAccounts({ onNavigate }: { onNavigate?: () => void }) {
             <Link
               href="/accounts"
               onClick={onNavigate}
-              className="text-body hover:bg-muted/70 hover:text-foreground flex h-9 items-center gap-3 rounded-xl px-3 text-sm transition-colors"
+              className="text-body hover:bg-muted/70 hover:text-foreground flex min-h-11 items-center gap-3 rounded-xl px-3 py-1.5 text-sm transition-colors"
             >
-              <Avatar src={account.channel_thumbnail_url} name={account.nickname} size={22} />
-              <span className="truncate">{account.nickname}</span>
+              <Avatar src={account.channel_thumbnail_url} name={account.channel_title} size={22} />
+              <span className="min-w-0 flex-1">
+                <span className="block truncate">{account.channel_title}</span>
+                <span className="text-muted-foreground block truncate text-xs">
+                  {account.nickname}
+                </span>
+              </span>
               {account.needs_reconnect || !account.is_active ? (
                 <span
                   className="bg-warning ml-auto size-2 shrink-0 rounded-full"
