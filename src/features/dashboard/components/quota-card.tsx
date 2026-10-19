@@ -33,19 +33,19 @@ export function QuotaCard() {
         : formatCountdown(secondsRemaining);
 
   return (
-    <Card className="relative overflow-hidden">
+    <Card className="relative w-full min-w-0 overflow-hidden">
       <Orb
         size="12rem"
         variant="sunset"
         blur
         className="absolute -right-16 -bottom-20 opacity-40"
       />
-      <CardBody className="relative flex h-full flex-col gap-5">
+      <CardBody className="relative flex h-full min-w-0 flex-col gap-3 sm:gap-5">
         <div>
-          <h2 className="text-foreground text-base font-semibold tracking-tight">
+          <h2 className="text-foreground text-sm font-semibold tracking-tight sm:text-base">
             Today&rsquo;s upload limit
           </h2>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <p className="text-muted-foreground mt-1 text-xs sm:text-sm">
             Shared across every channel you publish to.
           </p>
         </div>
@@ -58,27 +58,27 @@ export function QuotaCard() {
         {data ? (
           <>
             <div>
-              <p className="text-foreground text-4xl font-medium tracking-tight tabular-nums">
+              <p className="text-foreground text-3xl font-medium tracking-tight tabular-nums sm:text-4xl">
                 {data.remaining}
               </p>
-              <p className="text-muted-foreground text-sm">uploads left today</p>
+              <p className="text-muted-foreground text-xs sm:text-sm">uploads left today</p>
             </div>
             <Progress
               value={data.daily_limit > 0 ? (data.used_today / data.daily_limit) * 100 : 0}
               tone={data.remaining === 0 ? "danger" : "default"}
               label="Daily upload usage"
             />
-            <dl className="grid grid-cols-3 gap-3 text-sm">
+            <dl className="grid min-w-0 grid-cols-3 gap-2 text-sm sm:gap-3">
               <div>
-                <dt className="text-muted-foreground text-[13px]">Used</dt>
+                <dt className="text-muted-foreground text-xs sm:text-[13px]">Used</dt>
                 <dd className="text-foreground font-medium tabular-nums">{data.used_today}</dd>
               </div>
               <div>
-                <dt className="text-muted-foreground text-[13px]">Waiting</dt>
+                <dt className="text-muted-foreground text-xs sm:text-[13px]">Waiting</dt>
                 <dd className="text-foreground font-medium tabular-nums">{data.waiting}</dd>
               </div>
               <div>
-                <dt className="text-muted-foreground text-[13px]">Limit</dt>
+                <dt className="text-muted-foreground text-xs sm:text-[13px]">Limit</dt>
                 <dd className="text-foreground font-medium tabular-nums">{data.daily_limit}</dd>
               </div>
             </dl>
