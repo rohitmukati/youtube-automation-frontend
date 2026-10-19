@@ -282,6 +282,16 @@
   }
 }
 
+@media (max-width: 1023px) {
+  html {
+    scrollbar-width: none;
+  }
+
+  html::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @keyframes pop-in {
   from {
     opacity: 0;

@@ -83,7 +83,7 @@ export function HeroVisual({ className }: { className?: string }) {
         className="animate-orb-slow absolute -bottom-12 -left-10 opacity-50"
       />
 
-      <div className="border-border bg-card/90 shadow-float relative overflow-hidden rounded-[28px] border p-5 backdrop-blur">
+      <div className="border-border bg-card/90 shadow-float relative overflow-hidden rounded-3xl border p-4 backdrop-blur sm:rounded-[28px] sm:p-5">
         <div className="flex items-center gap-4">
           <div className="relative grid aspect-video w-28 shrink-0 place-items-center overflow-hidden rounded-xl">
             <Orb
@@ -163,9 +163,7 @@ export function HeroVisual({ className }: { className?: string }) {
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="text-foreground truncate text-[13px] font-medium">
-                        {row.name}
-                      </p>
+                      <p className="text-foreground truncate text-[13px] font-medium">{row.name}</p>
                       <p className="text-muted-foreground truncate text-xs">{row.channel}</p>
                     </div>
                     <StatusLabel steps={row.steps} delay={row.delay} />

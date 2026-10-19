@@ -168,13 +168,13 @@ export function UploadDetailView({ id }: { id: string }) {
   const progress = overallProgress(job);
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6 sm:gap-8">
       {back}
 
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-foreground text-[28px] leading-tight font-medium tracking-tight">
+            <h1 className="text-foreground text-2xl leading-tight font-medium tracking-tight sm:text-[28px]">
               {job.title}
             </h1>
             <JobStatusBadge status={job.status} />
@@ -226,7 +226,7 @@ export function UploadDetailView({ id }: { id: string }) {
         </CardBody>
       </Card>
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_21rem]">
+      <div className="grid items-start gap-4 sm:gap-6 lg:grid-cols-[minmax(0,1fr)_21rem]">
         <Card>
           <CardHeader title="Channels" description={pluralize(job.targets.length, "channel")} />
           <CardBody>

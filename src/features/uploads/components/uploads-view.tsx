@@ -67,7 +67,7 @@ export function UploadsView() {
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6 sm:gap-8">
       <PageHeader
         title="Upload History"
         description="Every multi-channel publish, with live status for each channel."
@@ -210,7 +210,7 @@ export function UploadsView() {
               <li key={job.id}>
                 <Link
                   href={`/uploads/${job.id}`}
-                  className="border-border bg-card hover:border-border-strong hover:bg-muted/40 flex items-center gap-4 rounded-2xl border px-5 py-4 transition-colors"
+                  className="border-border bg-card hover:border-border-strong hover:bg-muted/40 flex items-center gap-2 rounded-2xl border px-3 py-3 transition-colors sm:gap-4 sm:px-5 sm:py-4"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="text-foreground truncate text-[15px] font-medium">{job.title}</p>

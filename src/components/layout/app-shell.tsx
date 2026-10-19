@@ -90,7 +90,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           onOpenSearch={() => setSearchOpen(true)}
           sidebarOpen={sidebarOpen}
         />
-        <main id="main" className="mx-auto w-full max-w-[1200px] flex-1 px-4 py-8 sm:px-8 sm:py-10">
+        <main id="main" className="mx-auto w-full max-w-[1200px] flex-1 px-3 py-6 sm:px-8 sm:py-10">
           {children}
         </main>
       </div>

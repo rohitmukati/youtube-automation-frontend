@@ -3,14 +3,19 @@
 import Link from "next/link";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Alert } from "@/components/ui/alert";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { JobStatusBadge } from "@/features/uploads/components/status-badge";
 import { useUploads } from "@/features/uploads/hooks";
+import { getErrorMessage } from "@/lib/api/errors";
 import { formatRelative } from "@/lib/format";
 
 export function RecentUploadsCard() {
-  const { data, isLoading } = useUploads({ limit: 5, offset: 0 });
+  const { data, isLoading, isError, isFetching, error, refetch } = useUploads({
+    limit: 5,
+    offset: 0,
+  });
   const jobs = data?.jobs ?? [];
 
   return (
@@ -33,7 +38,26 @@ export function RecentUploadsCard() {
           </div>
         ) : null}
 
-        {!isLoading && jobs.length === 0 ? (
+        {isError ? (
+          <Alert
+            tone="danger"
+            title="Recent uploads could not be loaded"
+            action={
+              <Button
+                size="sm"
+                variant="outline"
+                loading={isFetching}
+                onClick={() => void refetch()}
+              >
+                Try again
+              </Button>
+            }
+          >
+            {getErrorMessage(error)}
+          </Alert>
+        ) : null}
+
+        {!isLoading && !isError && jobs.length === 0 ? (
           <div className="bg-muted flex flex-col items-start gap-3 rounded-2xl px-5 py-5">
             <p className="text-body text-sm">
               Nothing published yet. Pick a video and choose the channels it should go to.

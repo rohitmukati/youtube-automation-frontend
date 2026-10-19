@@ -73,7 +73,7 @@ export function AccountsView() {
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6 sm:gap-8">
       <PageHeader
         title="YouTube Accounts"
         description="Connect every channel you publish to. Each account stays private to you and can be disconnected at any time."
@@ -112,7 +112,7 @@ export function AccountsView() {
       ) : null}
 
       {isLoading ? (
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3">
           {[0, 1, 2].map((item) => (
             <Skeleton key={item} className="h-64 rounded-3xl" />
           ))}
@@ -133,7 +133,7 @@ export function AccountsView() {
       ) : null}
 
       {accounts.length > 0 ? (
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3">
           {accounts.map((account) => (
             <AccountCard
               key={account.id}

@@ -86,4 +86,4 @@ export function Field({
 }
 
 export const controlClasses =
-  "w-full rounded-xl border border-border-strong bg-background px-3.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors hover:border-foreground/40 focus-visible:border-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-foreground/10 disabled:cursor-not-allowed disabled:opacity-50 aria-[invalid=true]:border-danger aria-[invalid=true]:focus-visible:ring-danger/15";
+  "w-full rounded-xl border border-border-strong bg-background px-3.5 text-base text-foreground placeholder:text-muted-foreground transition-colors hover:border-foreground/40 focus-visible:border-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-foreground/10 disabled:cursor-not-allowed disabled:opacity-50 aria-[invalid=true]:border-danger aria-[invalid=true]:focus-visible:ring-danger/15 lg:text-sm";

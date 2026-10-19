@@ -1,14 +1,36 @@
 "use client";
 
+import * as React from "react";
 import { Card, CardBody } from "@/components/ui/card";
 import { Orb } from "@/components/ui/orb";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuota } from "@/features/uploads/hooks";
-import { formatRelative } from "@/lib/format";
 
 export function QuotaCard() {
-  const { data, isLoading, isError } = useQuota();
+  const { data, isLoading, isError, refetch } = useQuota();
+  const [now, setNow] = React.useState(() => Date.now());
+
+  React.useEffect(() => {
+    const interval = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(interval);
+  }, []);
+
+  const resetAt = data ? Date.parse(data.resets_at) : Number.NaN;
+  const secondsRemaining = Number.isFinite(resetAt)
+    ? Math.max(0, Math.ceil((resetAt - now) / 1000))
+    : null;
+
+  React.useEffect(() => {
+    if (secondsRemaining === 0) void refetch();
+  }, [refetch, secondsRemaining]);
+
+  const countdown =
+    secondsRemaining === null
+      ? "Reset time unavailable"
+      : secondsRemaining === 0
+        ? "Resetting now"
+        : formatCountdown(secondsRemaining);
 
   return (
     <Card className="relative overflow-hidden">
@@ -60,12 +82,21 @@ export function QuotaCard() {
                 <dd className="text-foreground font-medium tabular-nums">{data.daily_limit}</dd>
               </div>
             </dl>
-            <p className="text-muted-foreground text-[13px]">
-              Resets {formatRelative(data.resets_at)}
+            <p className="text-muted-foreground text-[13px]" aria-live="off">
+              Resets in{" "}
+              <span className="text-foreground font-medium tabular-nums">{countdown}</span>
             </p>
           </>
         ) : null}
       </CardBody>
     </Card>
   );
+}
+
+function formatCountdown(totalSeconds: number): string {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${hours > 0 ? `${hours}h ` : ""}${String(minutes).padStart(2, "0")}m ${String(seconds).padStart(2, "0")}s`;
 }

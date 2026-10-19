@@ -10,7 +10,7 @@ import { AccountStatusBadge } from "@/features/accounts/components/account-statu
 import { useAccounts } from "@/features/accounts/hooks";
 
 export function ConnectedAccountsCard() {
-  const { data, isLoading } = useAccounts();
+  const { data, isLoading, isError, isFetching, refetch } = useAccounts();
   const accounts = data?.accounts ?? [];
 
   return (
@@ -32,7 +32,24 @@ export function ConnectedAccountsCard() {
           </div>
         ) : null}
 
-        {!isLoading && accounts.length === 0 ? (
+        {!isLoading && isError && accounts.length === 0 ? (
+          <div className="bg-muted flex flex-col items-start gap-3 rounded-2xl px-5 py-5">
+            <p className="text-body text-sm">
+              Connected accounts could not be loaded. Check your connection and try again.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              loading={isFetching}
+              onClick={() => void refetch()}
+            >
+              Try again
+            </Button>
+          </div>
+        ) : null}
+
+        {!isLoading && !isError && accounts.length === 0 ? (
           <div className="bg-muted flex flex-col items-start gap-3 rounded-2xl px-5 py-5">
             <p className="text-body text-sm">Connect a YouTube account to start publishing.</p>
             <Button asChild size="sm">
@@ -56,9 +73,7 @@ export function ConnectedAccountsCard() {
                   <p className="text-foreground truncate text-sm font-medium">
                     {account.channel_title}
                   </p>
-                  <p className="text-muted-foreground truncate text-xs">
-                    {account.nickname}
-                  </p>
+                  <p className="text-muted-foreground truncate text-xs">{account.nickname}</p>
                 </div>
                 <AccountStatusBadge account={account} />
               </li>

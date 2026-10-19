@@ -24,9 +24,9 @@ import { cn } from "@/lib/utils";
 export function Hero() {
   return (
     <section className="relative overflow-hidden">
-      <div className="mx-auto grid max-w-6xl items-center gap-14 px-5 pt-16 pb-20 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:pt-24 lg:pb-28">
-        <div>
-          <h1 className="animate-rise text-foreground text-[44px] leading-[1.04] font-medium tracking-tight sm:text-[60px]">
+      <div className="mx-auto grid min-w-0 grid-cols-[minmax(0,1fr)] items-center gap-10 px-4 pt-12 pb-14 sm:gap-14 sm:px-8 sm:pt-16 sm:pb-20 lg:grid-cols-[1.05fr_0.95fr] lg:pt-24 lg:pb-28">
+        <div className="min-w-0">
+          <h1 className="animate-rise text-foreground text-[38px] leading-[1.04] font-medium tracking-tight sm:text-[50px] lg:text-[60px]">
             Publish one video to every channel you run.
           </h1>
           <p
@@ -52,7 +52,7 @@ export function Hero() {
           </div>
         </div>
         <div
-          className="animate-rise flex justify-center lg:justify-end"
+          className="animate-rise flex min-w-0 justify-center lg:justify-end"
           style={{ animationDelay: "320ms" }}
         >
           <HeroVisual />
@@ -108,9 +108,9 @@ const features: Feature[] = [
 export function Features() {
   return (
     <section id="features" className="border-border bg-surface scroll-mt-24 border-t">
-      <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 lg:py-28">
+      <div className="mx-auto max-w-6xl px-4 py-14 sm:px-8 sm:py-20 lg:py-28">
         <div className="max-w-2xl">
-          <h2 className="text-foreground text-[34px] leading-tight font-medium tracking-tight sm:text-[42px]">
+          <h2 className="text-foreground text-[30px] leading-tight font-medium tracking-tight sm:text-[34px] lg:text-[42px]">
             Everything a multi-channel publisher needs, and nothing else.
           </h2>
           <p className="text-body mt-4 text-lg">
@@ -119,14 +119,14 @@ export function Features() {
           </p>
         </div>
 
-        <ul className="mt-14 grid gap-5 lg:grid-cols-3">
+        <ul className="mt-10 grid gap-4 sm:mt-14 sm:gap-5 lg:grid-cols-3">
           {features.map((feature) => {
             const Icon = feature.icon;
             return (
               <li
                 key={feature.title}
                 className={cn(
-                  "reveal border-border bg-card rounded-3xl border p-7",
+                  "reveal border-border bg-card rounded-3xl border p-5 sm:p-7",
                   feature.wide && "lg:col-span-2",
                 )}
               >
@@ -170,11 +170,11 @@ const steps = [
 export function HowItWorks() {
   return (
     <section id="how-it-works" className="border-border scroll-mt-24 border-t">
-      <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 lg:py-28">
-        <h2 className="text-foreground max-w-2xl text-[34px] leading-tight font-medium tracking-tight sm:text-[42px]">
+      <div className="mx-auto max-w-6xl px-4 py-14 sm:px-8 sm:py-20 lg:py-28">
+        <h2 className="text-foreground max-w-2xl text-[30px] leading-tight font-medium tracking-tight sm:text-[34px] lg:text-[42px]">
           From a single file to every channel in four steps.
         </h2>
-        <ol className="mt-14 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+        <ol className="mt-10 grid gap-x-8 gap-y-8 sm:mt-14 sm:grid-cols-2 sm:gap-y-10 lg:grid-cols-4">
           {steps.map((step, index) => (
             <li key={step.title} className="how-step relative">
               <span className="how-step-indicator bg-primary text-primary-foreground relative grid size-10 place-items-center rounded-full text-sm font-medium">
@@ -218,8 +218,8 @@ const assurances: { icon: LucideIcon; title: string; body: string }[] = [
 export function Trust() {
   return (
     <section className="border-border bg-surface border-t">
-      <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 lg:py-24">
-        <div className="border-border bg-card relative overflow-hidden rounded-[32px] border p-8 sm:p-12">
+      <div className="mx-auto max-w-6xl px-4 py-14 sm:px-8 sm:py-20 lg:py-24">
+        <div className="border-border bg-card relative overflow-hidden rounded-3xl border p-5 sm:rounded-[32px] sm:p-12">
           <Orb
             size="22rem"
             variant="lagoon"
@@ -230,11 +230,11 @@ export function Trust() {
             <span className="bg-muted text-foreground grid size-11 place-items-center rounded-2xl">
               <ShieldCheck className="size-5" strokeWidth={1.6} aria-hidden />
             </span>
-            <h2 className="text-foreground mt-6 text-[30px] leading-tight font-medium tracking-tight sm:text-[36px]">
+            <h2 className="text-foreground mt-5 text-[28px] leading-tight font-medium tracking-tight sm:mt-6 sm:text-[36px]">
               Your channels stay in your control.
             </h2>
           </div>
-          <ul className="relative mt-10 grid gap-8 md:grid-cols-3">
+          <ul className="relative mt-8 grid gap-6 sm:mt-10 sm:gap-8 md:grid-cols-3">
             {assurances.map((item) => {
               const Icon = item.icon;
               return (
@@ -282,8 +282,8 @@ const faqs = [
 export function Faq() {
   return (
     <section id="faq" className="border-border scroll-mt-24 border-t">
-      <div className="mx-auto grid max-w-6xl gap-12 px-5 py-20 sm:px-8 lg:grid-cols-[0.8fr_1.2fr] lg:py-28">
-        <h2 className="text-foreground text-[34px] leading-tight font-medium tracking-tight sm:text-[42px]">
+      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-14 sm:gap-12 sm:px-8 sm:py-20 lg:grid-cols-[0.8fr_1.2fr] lg:py-28">
+        <h2 className="text-foreground text-[30px] leading-tight font-medium tracking-tight sm:text-[34px] lg:text-[42px]">
           Questions, answered.
         </h2>
         <div className="divide-border border-border divide-y border-y">
@@ -319,8 +319,8 @@ export function Faq() {
 export function FinalCta() {
   return (
     <section className="border-border border-t">
-      <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 lg:py-24">
-        <div className="bg-foreground text-background relative overflow-hidden rounded-[32px] px-8 py-16 text-center sm:px-16">
+      <div className="mx-auto max-w-6xl px-4 py-14 sm:px-8 sm:py-20 lg:py-24">
+        <div className="bg-foreground text-background relative overflow-hidden rounded-3xl px-5 py-12 text-center sm:rounded-[32px] sm:px-16 sm:py-16">
           <Orb
             size="20rem"
             variant="sunset"
@@ -334,10 +334,10 @@ export function FinalCta() {
             className="animate-orb-slow absolute -top-24 -right-12 opacity-60"
           />
           <div className="relative mx-auto max-w-2xl">
-            <h2 className="text-[34px] leading-tight font-medium tracking-tight sm:text-[44px]">
+            <h2 className="text-[30px] leading-tight font-medium tracking-tight sm:text-[44px]">
               Ready to publish everywhere at once?
             </h2>
-            <p className="mt-4 text-lg opacity-80">
+            <p className="mt-4 text-base opacity-80 sm:text-lg">
               Create your account, connect a channel, and send your first multi-channel upload.
             </p>
             <div className="mt-9 flex flex-wrap justify-center gap-3">

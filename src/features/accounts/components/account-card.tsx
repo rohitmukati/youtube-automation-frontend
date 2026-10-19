@@ -34,7 +34,7 @@ export function AccountCard({
   refreshing,
 }: AccountCardProps) {
   return (
-    <Card className="flex flex-col p-6">
+    <Card className="flex flex-col p-4 sm:p-6">
       <div className="flex items-start gap-4">
         <Avatar src={account.channel_thumbnail_url} name={account.channel_title} size={52} />
         <div className="min-w-0 flex-1">

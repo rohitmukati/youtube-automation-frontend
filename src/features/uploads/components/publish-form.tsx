@@ -160,24 +160,28 @@ export function PublishForm() {
   const description = values.description;
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="flex flex-col gap-8">
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      noValidate
+      className="flex flex-col gap-6 sm:gap-8"
+    >
       <PageHeader
         title="Publish"
         description="Choose a video, write its details once, and send it to every channel you select."
       />
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="flex flex-col gap-6">
+      <div className="grid items-start gap-4 sm:gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <div className="flex flex-col gap-4 sm:gap-6">
           <Section
             title="Video"
             description="Pick a video from Storage and an optional custom thumbnail."
           >
             <Field error={errors.storageFileId?.message}>
               {activeVideo ? (
-                <div className="border-border flex items-center gap-4 rounded-2xl border p-3">
+                <div className="border-border flex items-center gap-3 rounded-2xl border p-2 sm:gap-4 sm:p-3">
                   <FilePreview
                     file={activeVideo}
-                    className="aspect-video w-32 shrink-0 rounded-xl"
+                    className="aspect-video w-24 shrink-0 rounded-xl sm:w-32"
                   />
                   <div className="min-w-0 flex-1">
                     <p className="text-foreground truncate text-sm font-medium">
@@ -212,8 +216,11 @@ export function PublishForm() {
               hint="Images up to 2 MB work best as YouTube thumbnails."
             >
               {thumbnail ? (
-                <div className="border-border flex items-center gap-4 rounded-2xl border p-3">
-                  <FilePreview file={thumbnail} className="aspect-video w-32 shrink-0 rounded-xl" />
+                <div className="border-border flex items-center gap-3 rounded-2xl border p-2 sm:gap-4 sm:p-3">
+                  <FilePreview
+                    file={thumbnail}
+                    className="aspect-video w-24 shrink-0 rounded-xl sm:w-32"
+                  />
                   <p className="text-foreground min-w-0 flex-1 truncate text-sm">
                     {thumbnail.original_name}
                   </p>
@@ -294,6 +301,9 @@ export function PublishForm() {
                   <ChannelPicker
                     accounts={accounts}
                     loading={accountsQuery.isLoading}
+                    error={accountsQuery.isError}
+                    retrying={accountsQuery.isFetching}
+                    onRetry={() => void accountsQuery.refetch()}
                     value={field.value}
                     onChange={field.onChange}
                   />

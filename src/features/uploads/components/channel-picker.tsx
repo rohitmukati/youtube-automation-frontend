@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { Alert } from "@/components/ui/alert";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,11 +14,22 @@ import type { YouTubeAccount } from "@/types/api";
 interface ChannelPickerProps {
   accounts: YouTubeAccount[];
   loading: boolean;
+  error?: boolean;
+  retrying?: boolean;
+  onRetry?: () => void;
   value: string[];
   onChange: (ids: string[]) => void;
 }
 
-export function ChannelPicker({ accounts, loading, value, onChange }: ChannelPickerProps) {
+export function ChannelPicker({
+  accounts,
+  loading,
+  error = false,
+  retrying = false,
+  onRetry,
+  value,
+  onChange,
+}: ChannelPickerProps) {
   if (loading) {
     return (
       <div className="grid gap-3 sm:grid-cols-2">
@@ -28,6 +40,22 @@ export function ChannelPicker({ accounts, loading, value, onChange }: ChannelPic
   }
 
   if (accounts.length === 0) {
+    if (error) {
+      return (
+        <Alert
+          tone="danger"
+          title="Connected accounts could not be loaded"
+          action={
+            <Button size="sm" variant="outline" loading={retrying} onClick={onRetry}>
+              Try again
+            </Button>
+          }
+        >
+          Check your connection and try again before publishing.
+        </Alert>
+      );
+    }
+
     return (
       <div className="bg-muted flex flex-col items-start gap-3 rounded-2xl px-5 py-5">
         <p className="text-body text-sm">No YouTube accounts are connected yet.</p>
@@ -49,6 +77,19 @@ export function ChannelPicker({ accounts, loading, value, onChange }: ChannelPic
 
   return (
     <div className="flex flex-col gap-4">
+      {error ? (
+        <Alert
+          tone="danger"
+          title="Could not refresh connected accounts"
+          action={
+            <Button size="sm" variant="outline" loading={retrying} onClick={onRetry}>
+              Try again
+            </Button>
+          }
+        >
+          Showing the accounts that were loaded earlier.
+        </Alert>
+      ) : null}
       <div className="flex items-center justify-between">
         <p className="text-muted-foreground text-sm">
           {value.length} of {usable.length} available selected

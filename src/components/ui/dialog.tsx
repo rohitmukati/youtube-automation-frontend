@@ -36,7 +36,7 @@ export const DialogContent = React.forwardRef<
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          "border-border bg-card shadow-float fixed top-1/2 left-1/2 z-50 flex max-h-[90dvh] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-3xl border data-[state=open]:animate-[pop-in_0.2s_ease-out]",
+          "border-border bg-card shadow-float fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100dvh-1rem)] w-[calc(100%-1rem)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-2xl border data-[state=open]:animate-[pop-in_0.2s_ease-out] sm:max-h-[90dvh] sm:w-[calc(100%-2rem)] sm:rounded-3xl",
           sizes[size],
           className,
         )}
@@ -66,7 +66,9 @@ export function DialogHeader({
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-col gap-1.5 px-6 pt-6 pr-14", className)}>
+    <div
+      className={cn("flex flex-col gap-1.5 px-4 pt-5 pr-12 sm:px-6 sm:pt-6 sm:pr-14", className)}
+    >
       <DialogPrimitive.Title className="text-foreground text-lg font-semibold tracking-tight">
         {title}
       </DialogPrimitive.Title>
@@ -82,14 +84,19 @@ export function DialogHeader({
 }
 
 export function DialogBody({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("scrollbar-thin overflow-y-auto px-6 py-5", className)} {...props} />;
+  return (
+    <div
+      className={cn("scrollbar-thin overflow-y-auto px-4 py-4 sm:px-6 sm:py-5", className)}
+      {...props}
+    />
+  );
 }
 
 export function DialogFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={cn(
-        "flex flex-col-reverse gap-2 px-6 pt-1 pb-6 sm:flex-row sm:justify-end",
+        "flex flex-col-reverse gap-2 px-4 pt-1 pb-4 sm:flex-row sm:justify-end sm:px-6 sm:pb-6",
         className,
       )}
       {...props}
@@ -107,7 +114,7 @@ export const SheetContent = React.forwardRef<
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          "border-border bg-background shadow-float fixed inset-y-0 left-0 z-50 flex w-[19rem] max-w-[85vw] flex-col border-r data-[state=open]:animate-[slide-in-left_0.4s_cubic-bezier(0.22,1,0.36,1)] data-[state=closed]:animate-[slide-out-left_0.35s_cubic-bezier(0.4,0,0.2,1)]",
+          "border-border bg-background shadow-float fixed inset-y-0 left-0 z-50 flex w-[19rem] max-w-[85vw] flex-col border-r data-[state=closed]:animate-[slide-out-left_0.35s_cubic-bezier(0.4,0,0.2,1)] data-[state=open]:animate-[slide-in-left_0.4s_cubic-bezier(0.22,1,0.36,1)]",
           className,
         )}
         {...props}

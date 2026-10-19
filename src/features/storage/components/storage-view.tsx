@@ -61,7 +61,7 @@ export function StorageView() {
   const filtering = type !== "all" || debouncedSearch !== "";
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6 sm:gap-8">
       <PageHeader
         title="Storage"
         description="Your private library of videos and images. Publish any video to your channels in a few clicks."
@@ -117,7 +117,7 @@ export function StorageView() {
       ) : null}
 
       {isLoading ? (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 8 }).map((_, index) => (
             <Skeleton key={index} className="aspect-[4/3] rounded-3xl" />
           ))}
@@ -158,7 +158,7 @@ export function StorageView() {
 
       {files.length > 0 ? (
         <div className={isFetching ? "opacity-70 transition-opacity" : "transition-opacity"}>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
             {files.map((file) => (
               <FileCard
                 key={file.id}

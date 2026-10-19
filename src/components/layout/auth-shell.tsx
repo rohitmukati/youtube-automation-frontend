@@ -14,7 +14,7 @@ interface AuthShellProps {
 export function AuthShell({ title, description, children, footer }: AuthShellProps) {
   return (
     <div className="grid min-h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
-      <div className="flex min-h-dvh flex-col px-6 py-6 sm:px-10">
+      <div className="flex min-h-dvh flex-col px-4 py-5 sm:px-10 sm:py-6">
         <div className="flex items-center justify-between">
           <Logo />
           <ThemeToggle />
@@ -24,7 +24,7 @@ export function AuthShell({ title, description, children, footer }: AuthShellPro
           id="main"
           className="mx-auto flex w-full max-w-[400px] flex-1 flex-col justify-center py-12"
         >
-          <h1 className="text-foreground text-[32px] leading-tight font-medium tracking-tight">
+          <h1 className="text-foreground text-[28px] leading-tight font-medium tracking-tight sm:text-[32px]">
             {title}
           </h1>
           {description ? (

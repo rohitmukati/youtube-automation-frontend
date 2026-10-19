@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { FileUp, Search } from "lucide-react";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogBody, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,7 @@ import { FilePreview } from "@/features/storage/components/file-card";
 import { UploadDialog } from "@/features/storage/components/upload-dialog";
 import { useStorageFiles } from "@/features/storage/hooks";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { getErrorMessage } from "@/lib/api/errors";
 import { formatBytes } from "@/lib/utils";
 import type { StorageFile, StorageFileType } from "@/types/api";
 
@@ -36,7 +38,7 @@ export function StoragePickerDialog({
   const [uploadOpen, setUploadOpen] = React.useState(false);
   const debounced = useDebouncedValue(search.trim());
 
-  const { data, isLoading, isFetching } = useStorageFiles(
+  const { data, isLoading, isFetching, isError, error, refetch } = useStorageFiles(
     { type, search: debounced || undefined, limit: PAGE_SIZE, offset },
     open,
   );
@@ -48,8 +50,8 @@ export function StoragePickerDialog({
         <DialogContent size="xl">
           <DialogHeader title={title} description={`Pick a ${type} from your Storage library.`} />
           <DialogBody className="flex flex-col gap-5">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="relative min-w-56 flex-1">
+            <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+              <div className="relative min-w-0 flex-1">
                 <Search
                   className="text-muted-foreground pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2"
                   aria-hidden
@@ -66,7 +68,11 @@ export function StoragePickerDialog({
                   className="h-10 pl-10"
                 />
               </div>
-              <Button variant="outline" onClick={() => setUploadOpen(true)}>
+              <Button
+                variant="outline"
+                onClick={() => setUploadOpen(true)}
+                className="w-full sm:w-auto"
+              >
                 <FileUp /> Upload new
               </Button>
             </div>
@@ -79,7 +85,26 @@ export function StoragePickerDialog({
               </div>
             ) : null}
 
-            {!isLoading && files.length === 0 ? (
+            {isError ? (
+              <Alert
+                tone="danger"
+                title="Files could not be loaded"
+                action={
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    loading={isFetching}
+                    onClick={() => void refetch()}
+                  >
+                    Try again
+                  </Button>
+                }
+              >
+                {getErrorMessage(error)}
+              </Alert>
+            ) : null}
+
+            {!isLoading && !isError && files.length === 0 ? (
               <p className="bg-muted text-muted-foreground rounded-2xl px-4 py-10 text-center text-sm">
                 No {type}s found. Upload one to continue.
               </p>
