@@ -33,6 +33,19 @@ const steps: { title: string; body: React.ReactNode }[] = [
     ),
   },
   {
+    title: "Enable the YouTube Analytics API",
+    body: (
+      <>
+        In <b>APIs &amp; Services → Library</b>, search for <b>YouTube Analytics API</b> and click{" "}
+        <b>Enable</b>. (
+        <ConsoleLink href="https://console.cloud.google.com/apis/library/youtubeanalytics.googleapis.com">
+          direct link
+        </ConsoleLink>
+        )
+      </>
+    ),
+  },
+  {
     title: "Configure the OAuth consent screen",
     body: (
       <>
@@ -51,8 +64,20 @@ const steps: { title: string; body: React.ReactNode }[] = [
         <code className="bg-muted rounded px-1.5 py-0.5 text-[12px]">openid</code>,{" "}
         <code className="bg-muted rounded px-1.5 py-0.5 text-[12px]">userinfo.email</code>,{" "}
         <code className="bg-muted rounded px-1.5 py-0.5 text-[12px]">youtube.upload</code> and{" "}
-        <code className="bg-muted rounded px-1.5 py-0.5 text-[12px]">youtube.readonly</code>. Press{" "}
+        <code className="bg-muted rounded px-1.5 py-0.5 text-[12px]">youtube.readonly</code>,{" "}
+        <code className="bg-muted rounded px-1.5 py-0.5 text-[12px]">youtube.force-ssl</code> and{" "}
+        <code className="bg-muted rounded px-1.5 py-0.5 text-[12px]">yt-analytics.readonly</code>.
+        Channels connected earlier must be reconnected once to grant analytics access. Press{" "}
         <b>Update</b> and then <b>Save</b>.
+      </>
+    ),
+  },
+  {
+    title: "Approve every permission",
+    body: (
+      <>
+        On Google&apos;s permission screen, keep every checkbox ticked or choose <b>Select all</b>.
+        Unticking a permission can stop the connection from working.
       </>
     ),
   },
@@ -71,9 +96,9 @@ const steps: { title: string; body: React.ReactNode }[] = [
     body: (
       <>
         After creating the client Google shows the <b>Client ID</b> and <b>Client Secret</b>. Copy
-        both, come back to this window, paste them into the form and press <b>Save</b>. If you
-        close the Google popup early you can open the client again from <b>Clients</b> and copy the
-        secret from there.
+        both, come back to this window, paste them into the form and press <b>Save</b>. If you close
+        the Google popup early you can open the client again from <b>Clients</b> and copy the secret
+        from there.
       </>
     ),
   },
@@ -111,7 +136,7 @@ export function OAuthSetupGuide({ redirectUrl }: OAuthSetupGuideProps) {
       </ol>
       {redirectUrl ? (
         <div className="bg-muted rounded-2xl px-4 py-3">
-          <p className="text-muted-foreground text-[12px]">Redirect URL for step 5</p>
+          <p className="text-muted-foreground text-[12px]">Redirect URL for step 6</p>
           <p className="text-foreground mt-0.5 font-mono text-[12.5px] break-all">{redirectUrl}</p>
         </div>
       ) : null}

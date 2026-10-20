@@ -15,6 +15,7 @@ export function ConnectResult() {
   const success = params.get("status") === "success";
   const channel = params.get("channel");
   const reason = params.get("reason");
+  const code = params.get("code");
   const detail =
     reason === "access_denied"
       ? "Access was declined in Google, so nothing was connected. Try again and approve the requested permissions."
@@ -47,6 +48,39 @@ export function ConnectResult() {
               "Google did not complete the connection. No changes were made. Try again, and make sure you approve every permission requested.")}
         </p>
       </div>
+      {!success && code === "google_scopes_missing" ? (
+        <div className="bg-warning-soft text-warning rounded-2xl px-4 py-3 text-left text-sm">
+          Keep every checkbox ticked (or choose Select all) on Google&apos;s permission screen, then
+          try connecting again.
+        </div>
+      ) : null}
+      {!success && code === "google_api_not_enabled" ? (
+        <div className="bg-muted w-full rounded-2xl px-4 py-3 text-left text-sm">
+          <p className="text-foreground font-medium">Enable both YouTube APIs in Google Cloud:</p>
+          <ul className="text-muted-foreground mt-2 list-disc pl-5">
+            <li>
+              <a
+                className="underline underline-offset-2"
+                href="https://console.cloud.google.com/apis/library/youtube.googleapis.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Enable YouTube Data API v3
+              </a>
+            </li>
+            <li>
+              <a
+                className="underline underline-offset-2"
+                href="https://console.cloud.google.com/apis/library/youtubeanalytics.googleapis.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Enable YouTube Analytics API
+              </a>
+            </li>
+          </ul>
+        </div>
+      ) : null}
       <div className="flex gap-2">
         {success ? null : (
           <Button asChild>

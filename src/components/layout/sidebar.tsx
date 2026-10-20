@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut, Plus } from "lucide-react";
+import { BarChart3, LogOut, Plus } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 import { Avatar } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
@@ -61,6 +61,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 function ConnectedAccounts({ onNavigate }: { onNavigate?: () => void }) {
   const { data, isLoading } = useAccounts();
   const accounts = data?.accounts ?? [];
+  const pathname = usePathname();
 
   if (isLoading) {
     return (
@@ -70,45 +71,62 @@ function ConnectedAccounts({ onNavigate }: { onNavigate?: () => void }) {
       </div>
     );
   }
-  if (accounts.length === 0) return null;
-
   return (
     <>
       <SectionLabel>Connected accounts</SectionLabel>
+      <Link
+        href="/analytics"
+        onClick={onNavigate}
+        aria-current={pathname === "/analytics" ? "page" : undefined}
+        className={cn(
+          "mb-1 flex h-10 items-center gap-3 rounded-xl px-3 text-[15px] transition-colors",
+          pathname === "/analytics"
+            ? "bg-muted text-foreground font-medium"
+            : "text-body hover:bg-muted/70 hover:text-foreground",
+        )}
+      >
+        <BarChart3 className="size-5 shrink-0" strokeWidth={1.6} aria-hidden />
+        <span className="truncate">All channels</span>
+      </Link>
       <ul className="flex flex-col">
-        {accounts.slice(0, 6).map((account) => (
-          <li key={account.id}>
-            <Link
-              href="/accounts"
-              onClick={onNavigate}
-              className="text-body hover:bg-muted/70 hover:text-foreground flex min-h-11 items-center gap-3 rounded-xl px-3 py-1.5 text-sm transition-colors"
-            >
-              <Avatar src={account.channel_thumbnail_url} name={account.channel_title} size={22} />
-              <span className="min-w-0 flex-1">
-                <span className="block truncate">{account.channel_title}</span>
-                <span className="text-muted-foreground block truncate text-xs">
-                  {account.nickname}
-                </span>
-              </span>
-              {account.needs_reconnect || !account.is_active ? (
-                <span
-                  className="bg-warning ml-auto size-2 shrink-0 rounded-full"
-                  title="Needs attention"
+        {accounts.map((account) => {
+          const href = `/accounts/${account.id}`;
+          const active = pathname === href || pathname.startsWith(`${href}/`);
+          return (
+            <li key={account.id}>
+              <Link
+                href={href}
+                onClick={onNavigate}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "flex min-h-11 items-center gap-3 rounded-xl px-3 py-1.5 text-sm transition-colors",
+                  active
+                    ? "bg-muted text-foreground font-medium"
+                    : "text-body hover:bg-muted/70 hover:text-foreground",
+                )}
+              >
+                <Avatar
+                  src={account.channel_thumbnail_url}
+                  name={account.channel_title}
+                  size={22}
                 />
-              ) : null}
-            </Link>
-          </li>
-        ))}
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate">{account.channel_title}</span>
+                  <span className="text-muted-foreground block truncate text-xs">
+                    {account.nickname}
+                  </span>
+                </span>
+                {account.needs_reconnect || !account.is_active ? (
+                  <span
+                    className="bg-warning ml-auto size-2 shrink-0 rounded-full"
+                    title="Needs attention"
+                  />
+                ) : null}
+              </Link>
+            </li>
+          );
+        })}
       </ul>
-      {accounts.length > 6 ? (
-        <Link
-          href="/accounts"
-          onClick={onNavigate}
-          className="text-muted-foreground hover:text-foreground mt-1 block px-3 py-1.5 text-[13px]"
-        >
-          View all {accounts.length}
-        </Link>
-      ) : null}
     </>
   );
 }

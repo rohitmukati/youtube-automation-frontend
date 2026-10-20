@@ -1,6 +1,7 @@
 "use client";
 
 import { ExternalLink, Ellipsis, Pencil, PlugZap, RefreshCw, Unplug } from "lucide-react";
+import Link from "next/link";
 import { AccountStatusBadge } from "@/features/accounts/components/account-status-badge";
 import { channelUrl } from "@/features/accounts/status";
 import { Avatar } from "@/components/ui/avatar";
@@ -111,6 +112,23 @@ export function AccountCard({
           {account.notes}
         </p>
       ) : null}
+
+      <div className="mt-4">
+        {account.needs_reconnect ? (
+          <Button
+            variant="outline"
+            className="w-full"
+            disabled
+            title="Reconnect this account to open its dashboard."
+          >
+            Dashboard
+          </Button>
+        ) : (
+          <Button asChild variant="outline" className="w-full">
+            <Link href={`/accounts/${account.id}`}>Dashboard</Link>
+          </Button>
+        )}
+      </div>
 
       {refreshing ? <p className="text-muted-foreground mt-3 text-[13px]">Refreshing…</p> : null}
     </Card>

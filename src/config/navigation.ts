@@ -25,7 +25,7 @@ export const primaryNav: NavItem[] = [
     label: "YouTube Accounts",
     href: "/accounts",
     icon: MonitorPlay,
-    match: (pathname) => startsWith("/accounts")(pathname) || startsWith("/youtube")(pathname),
+    match: (pathname) => pathname === "/accounts" || startsWith("/youtube")(pathname),
     quickAction: { href: "/accounts?connect=1", label: "Connect account" },
   },
   { label: "Storage", href: "/storage", icon: FolderOpen, match: startsWith("/storage") },
@@ -51,6 +51,9 @@ export const settingsNav: NavItem = {
 };
 
 export function resolveTitle(pathname: string): string {
+  if (pathname === "/analytics") return "All Channel Analytics";
+  if (/^\/accounts\/[^/]+\/videos\/[^/]+$/.test(pathname)) return "Video Analytics";
+  if (/^\/accounts\/[^/]+$/.test(pathname)) return "Channel Analytics";
   const all = [...primaryNav, ...channelNav, settingsNav];
   const found = all.find((item) => item.match?.(pathname));
   return found?.label ?? "";

@@ -21,7 +21,7 @@ const actions: { label: string; href: string; icon: LucideIcon }[] = [
 export function QuickActions() {
   return (
     <nav aria-label="Quick actions" className="w-full">
-      <ul className="mx-auto grid w-full max-w-xl grid-cols-3 justify-items-center gap-x-2 gap-y-4 sm:flex sm:flex-wrap sm:justify-center sm:gap-6">
+      <ul className="mx-auto grid w-full max-w-xl grid-cols-3 justify-items-center gap-x-2 gap-y-4 sm:flex sm:flex-wrap sm:justify-center sm:gap-6 lg:max-w-none lg:flex-nowrap">
         {actions.map(({ label, href, icon: Icon }) => (
           <li key={href}>
             <Link

@@ -91,8 +91,9 @@ export function ConnectAccountDialog({
               </Alert>
             ) : null}
             <Alert tone="info" title="What access is requested">
-              Permission to upload videos and thumbnails, read basic channel details, and see the
-              Google account email. Nothing is ever published without you starting an upload.
+              Permission to upload videos and thumbnails, read channel details and YouTube
+              Analytics, and see the Google account email. Nothing is ever published without you
+              starting an upload.
             </Alert>
           </DialogBody>
           <DialogFooter>

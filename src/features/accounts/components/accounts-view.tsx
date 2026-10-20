@@ -33,7 +33,7 @@ export function AccountsView() {
   const connectAccount = useConnectAccount();
   const credentialsConfigured = credentials.data?.configured;
 
-  const [oauthOpen, setOauthOpen] = React.useState(false);
+  const [oauthOpen, setOauthOpen] = React.useState(() => params.get("oauth") === "1");
   const [pendingNickname, setPendingNickname] = React.useState<string | null>(null);
 
   const [connectManual, setConnectManual] = React.useState(false);
@@ -59,7 +59,10 @@ export function AccountsView() {
 
   function closeOauth(open: boolean) {
     setOauthOpen(open);
-    if (!open) setPendingNickname(null);
+    if (!open) {
+      setPendingNickname(null);
+      if (params.get("oauth") === "1") router.replace("/accounts", { scroll: false });
+    }
   }
 
   function continueAfterCredentials() {
