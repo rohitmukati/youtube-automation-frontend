@@ -134,20 +134,20 @@ function ConnectedAccounts({ onNavigate }: { onNavigate?: () => void }) {
 function QuotaMeter() {
   const { data } = useQuota();
   if (!data) return null;
-  const percent = data.daily_limit > 0 ? (data.used_today / data.daily_limit) * 100 : 0;
+  const percent = data.daily_limit > 0 ? (data.remaining / data.daily_limit) * 100 : 0;
   return (
     <div className="border-border mx-3 mb-3 rounded-2xl border p-3.5">
       <div className="flex items-baseline justify-between text-[13px]">
-        <span className="text-muted-foreground">Uploads today</span>
+        <span className="text-muted-foreground">Uploads left today</span>
         <span className="text-foreground font-medium">
-          {data.used_today} / {data.daily_limit}
+          {data.remaining} / {data.daily_limit}
         </span>
       </div>
       <Progress
-        className="mt-2.5"
+        className="mt-2.5 isolate [clip-path:inset(0_round_9999px)]"
         value={percent}
-        tone={percent >= 90 ? "danger" : percent >= 70 ? "warning" : "default"}
-        label="Daily upload usage"
+        tone={percent <= 10 ? "danger" : percent <= 30 ? "warning" : "default"}
+        label="Daily uploads remaining"
       />
     </div>
   );

@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils";
 export function Hero() {
   return (
     <section className="relative overflow-hidden">
-      <div className="mx-auto grid min-w-0 grid-cols-[minmax(0,1fr)] items-center gap-10 px-4 pt-12 pb-14 sm:gap-14 sm:px-8 sm:pt-16 sm:pb-20 lg:grid-cols-[1.05fr_0.95fr] lg:pt-24 lg:pb-28">
+      <div className="mx-auto grid w-full max-w-6xl min-w-0 grid-cols-[minmax(0,1fr)] items-center gap-10 px-4 pt-12 pb-14 sm:gap-14 sm:px-8 sm:pt-16 sm:pb-20 lg:grid-cols-[1.05fr_0.95fr] lg:pt-24 lg:pb-28">
         <div className="min-w-0">
           <h1 className="animate-rise text-foreground text-[38px] leading-[1.04] font-medium tracking-tight sm:text-[50px] lg:text-[60px]">
             Publish one video to every channel you run.
@@ -107,7 +107,7 @@ const features: Feature[] = [
 
 export function Features() {
   return (
-    <section id="features" className="border-border bg-surface scroll-mt-24 border-t">
+    <section id="features" className="border-border bg-surface/40 scroll-mt-24 border-t">
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-8 sm:py-20 lg:py-28">
         <div className="max-w-2xl">
           <h2 className="text-foreground text-[30px] leading-tight font-medium tracking-tight sm:text-[34px] lg:text-[42px]">
@@ -126,7 +126,7 @@ export function Features() {
               <li
                 key={feature.title}
                 className={cn(
-                  "reveal border-border bg-card rounded-3xl border p-5 sm:p-7",
+                  "reveal border-border bg-card/80 hover:border-border-strong hover:shadow-soft rounded-3xl border p-5 backdrop-blur-sm transition-[border-color,box-shadow] sm:p-7",
                   feature.wide && "lg:col-span-2",
                 )}
               >
@@ -217,7 +217,7 @@ const assurances: { icon: LucideIcon; title: string; body: string }[] = [
 
 export function Trust() {
   return (
-    <section className="border-border bg-surface border-t">
+    <section className="border-border bg-surface/40 border-t">
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-8 sm:py-20 lg:py-24">
         <div className="border-border bg-card relative overflow-hidden rounded-3xl border p-5 sm:rounded-[32px] sm:p-12">
           <Orb

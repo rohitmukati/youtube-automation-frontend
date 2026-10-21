@@ -238,12 +238,37 @@
     background:
       radial-gradient(
         ellipse 30rem 24rem at 28% 18%,
-        color-mix(in srgb, var(--orb-c) 7%, transparent),
+        color-mix(in srgb, var(--orb-c) 11%, transparent),
         transparent 72%
       ),
       radial-gradient(
         ellipse 28rem 24rem at 78% 78%,
-        color-mix(in srgb, var(--orb-a) 8%, transparent),
+        color-mix(in srgb, var(--orb-a) 13%, transparent),
+        transparent 72%
+      ),
+      radial-gradient(
+        ellipse 28rem 22rem at 82% 10%,
+        color-mix(in srgb, var(--orb-d) 11%, transparent),
+        transparent 72%
+      ),
+      radial-gradient(
+        ellipse 26rem 22rem at 10% 52%,
+        color-mix(in srgb, var(--orb-a) 11%, transparent),
+        transparent 72%
+      ),
+      radial-gradient(
+        ellipse 28rem 22rem at 55% 62%,
+        color-mix(in srgb, var(--orb-c) 10%, transparent),
+        transparent 72%
+      ),
+      radial-gradient(
+        ellipse 30rem 22rem at 20% 96%,
+        color-mix(in srgb, var(--orb-d) 11%, transparent),
+        transparent 72%
+      ),
+      radial-gradient(
+        ellipse 26rem 20rem at 92% 100%,
+        color-mix(in srgb, var(--orb-c) 10%, transparent),
         transparent 72%
       );
     animation: dashboard-glow 32s ease-in-out infinite;
@@ -257,6 +282,82 @@
   }
 
   .dashboard-ambient > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .landing-ambient {
+    position: relative;
+    isolation: isolate;
+    overflow-x: clip;
+  }
+
+  .landing-ambient::before {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    pointer-events: none;
+    content: "";
+    background:
+      radial-gradient(
+        ellipse 34rem 26rem at 10% 24%,
+        color-mix(in srgb, var(--orb-c) 13%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 34rem 26rem at 90% 31%,
+        color-mix(in srgb, var(--orb-a) 14%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 34rem 26rem at 8% 43%,
+        color-mix(in srgb, var(--orb-d) 13%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 34rem 26rem at 92% 53%,
+        color-mix(in srgb, var(--orb-c) 12%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 34rem 26rem at 12% 65%,
+        color-mix(in srgb, var(--orb-a) 13%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 34rem 26rem at 88% 73%,
+        color-mix(in srgb, var(--orb-d) 13%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 34rem 26rem at 10% 85%,
+        color-mix(in srgb, var(--orb-c) 12%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 34rem 24rem at 88% 93%,
+        color-mix(in srgb, var(--orb-b) 10%, transparent),
+        transparent 70%
+      );
+    animation: dashboard-glow 40s ease-in-out infinite;
+  }
+
+  .landing-ambient::after {
+    position: absolute;
+    z-index: 0;
+    inset: 0 0 auto 0;
+    height: 46rem;
+    pointer-events: none;
+    content: "";
+    background-image: radial-gradient(
+      color-mix(in srgb, var(--foreground) 16%, transparent) 1px,
+      transparent 1.2px
+    );
+    background-size: 26px 26px;
+    mask-image: linear-gradient(to bottom, black 0%, transparent 85%);
+  }
+
+  .landing-ambient > * {
     position: relative;
     z-index: 1;
   }

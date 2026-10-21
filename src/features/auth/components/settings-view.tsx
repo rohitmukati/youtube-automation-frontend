@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { LogOut, Monitor, Moon, Sun } from "lucide-react";
+import { LogOut, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import * as React from "react";
 import { PageHeader } from "@/components/shared/page-header";
@@ -86,12 +86,11 @@ export function SettingsView() {
           {mounted ? (
             <SegmentedControl
               label="Theme"
-              value={(theme as "light" | "dark" | "system") ?? "system"}
+              value={(theme as "light" | "dark") ?? "light"}
               onChange={setTheme}
               options={[
                 { value: "light", label: "Light", icon: <Sun /> },
                 { value: "dark", label: "Dark", icon: <Moon /> },
-                { value: "system", label: "System", icon: <Monitor /> },
               ]}
             />
           ) : (

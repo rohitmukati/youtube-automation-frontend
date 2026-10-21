@@ -9,13 +9,13 @@ import {
 
 export default function LandingPage() {
   return (
-    <>
+    <div className="landing-ambient">
       <Hero />
       <Features />
       <HowItWorks />
       <Trust />
       <Faq />
       <FinalCta />
-    </>
+    </div>
   );
 }

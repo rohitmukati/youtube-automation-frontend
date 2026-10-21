@@ -5,14 +5,16 @@ import { RecentUploadsCard } from "@/features/dashboard/components/recent-upload
 
 export function DashboardView() {
   return (
-    <div className="dashboard-ambient flex min-w-0 flex-col gap-8 sm:gap-12">
-      <DashboardIntro />
+    <div className="-mx-3 min-w-0 overflow-x-clip px-3 sm:-mx-8 sm:px-8">
+      <div className="dashboard-ambient flex min-w-0 flex-col gap-8 sm:gap-12">
+        <DashboardIntro />
 
-      <section className="grid min-w-0 grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-3">
-        <QuotaCard />
-        <ConnectedAccountsCard />
-        <RecentUploadsCard />
-      </section>
+        <section className="grid min-w-0 grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-3">
+          <QuotaCard />
+          <ConnectedAccountsCard />
+          <RecentUploadsCard />
+        </section>
+      </div>
     </div>
   );
 }
