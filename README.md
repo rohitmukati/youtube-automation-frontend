@@ -4,7 +4,7 @@ Web app for the YouTube Automation backend: connect YouTube accounts, manage a p
 
 Built with Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4, TanStack Query, React Hook Form and Zod.
 
-## Getting started
+## Getting started       
 
 ```bash
 npm install
