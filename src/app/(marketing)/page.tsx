@@ -1,3 +1,4 @@
+import { AiInsights, GrowthTools } from "@/components/marketing/landing-showcase";
 import {
   Faq,
   Features,
@@ -12,6 +13,8 @@ export default function LandingPage() {
     <div className="landing-ambient">
       <Hero />
       <Features />
+      <AiInsights />
+      <GrowthTools />
       <HowItWorks />
       <Trust />
       <Faq />
