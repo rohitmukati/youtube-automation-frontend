@@ -21,7 +21,7 @@ const parsed = schema.safeParse({
   apiUrl: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1",
   skipNgrokWarning: process.env.NEXT_PUBLIC_API_SKIP_NGROK_WARNING,
   supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? "support@example.com",
-  maxVideoMb: process.env.NEXT_PUBLIC_MAX_VIDEO_MB ?? "50",
+  maxVideoMb: process.env.NEXT_PUBLIC_MAX_VIDEO_MB ?? "500",
   maxImageMb: process.env.NEXT_PUBLIC_MAX_IMAGE_MB ?? "10",
 });
 

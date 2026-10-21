@@ -185,6 +185,11 @@ function UploadBody({ onClose, onRunningChange }: UploadBodyProps) {
                       <p className="text-foreground truncate text-sm">{item.file.name}</p>
                       <p className="text-muted-foreground text-[13px]">
                         {formatBytes(item.file.size)}
+                        {item.status === "uploading"
+                          ? item.progress < 100
+                            ? ` · ${item.progress}%`
+                            : " · Processing on server…"
+                          : null}
                       </p>
                     </div>
                     {item.status === "uploading" ? (

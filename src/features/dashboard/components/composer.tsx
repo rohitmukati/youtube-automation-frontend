@@ -53,7 +53,9 @@ export function Composer() {
         </button>
         {uploading ? (
           <p className="text-body flex-1 truncate text-[15px]" role="status">
-            Uploading to Storage… {progress}%
+            {(progress ?? 0) >= 100
+              ? "Processing on server…"
+              : `Uploading to Storage… ${progress}%`}
           </p>
         ) : (
           <Link
