@@ -24,13 +24,13 @@ import { cn } from "@/lib/utils";
 export function Hero() {
   return (
     <section className="relative overflow-hidden">
-      <div className="mx-auto grid w-full max-w-6xl min-w-0 grid-cols-[minmax(0,1fr)] items-center gap-10 px-4 pt-12 pb-14 sm:gap-14 sm:px-8 sm:pt-16 sm:pb-20 lg:grid-cols-[1.05fr_0.95fr] lg:pt-24 lg:pb-28">
+      <div className="mx-auto grid w-full max-w-(--landing-w) min-w-0 grid-cols-[minmax(0,1fr)] items-center gap-10 px-4 pt-12 pb-14 sm:gap-14 sm:px-8 sm:pt-16 sm:pb-20 lg:grid-cols-[1.05fr_0.95fr] lg:pt-20 lg:pb-24">
         <div className="min-w-0">
-          <h1 className="animate-rise text-foreground text-[38px] leading-[1.04] font-medium tracking-tight sm:text-[50px] lg:text-[60px]">
+          <h1 className="animate-rise text-foreground text-[38px] leading-[1.04] font-medium tracking-tight sm:text-[50px] lg:text-hero">
             Publish one video to every channel you run.
           </h1>
           <p
-            className="animate-rise text-body mt-6 max-w-xl text-lg"
+            className="animate-rise text-body mt-6 max-w-xl text-lg lg:text-[17px]"
             style={{ animationDelay: "120ms" }}
           >
             Connect your YouTube accounts, keep your media in one private library, and send a video
@@ -108,9 +108,9 @@ const features: Feature[] = [
 export function Features() {
   return (
     <section id="features" className="border-border bg-surface/40 scroll-mt-24 border-t">
-      <div className="mx-auto max-w-6xl px-4 py-14 sm:px-8 sm:py-20 lg:py-28">
+      <div className="mx-auto max-w-(--landing-w) px-4 py-14 sm:px-8 sm:py-20 lg:py-24">
         <div className="max-w-2xl">
-          <h2 className="text-foreground text-[30px] leading-tight font-medium tracking-tight sm:text-[34px] lg:text-[42px]">
+          <h2 className="text-foreground text-[30px] leading-tight font-medium tracking-tight sm:text-[34px] lg:text-section">
             Everything a multi-channel publisher needs, and nothing else.
           </h2>
           <p className="text-body mt-4 text-lg">
@@ -170,8 +170,8 @@ const steps = [
 export function HowItWorks() {
   return (
     <section id="how-it-works" className="border-border scroll-mt-24 border-t">
-      <div className="mx-auto max-w-6xl px-4 py-14 sm:px-8 sm:py-20 lg:py-28">
-        <h2 className="text-foreground max-w-2xl text-[30px] leading-tight font-medium tracking-tight sm:text-[34px] lg:text-[42px]">
+      <div className="mx-auto max-w-(--landing-w) px-4 py-14 sm:px-8 sm:py-20 lg:py-24">
+        <h2 className="text-foreground max-w-2xl text-[30px] leading-tight font-medium tracking-tight sm:text-[34px] lg:text-section">
           From a single file to every channel in four steps.
         </h2>
         <ol className="mt-10 grid gap-x-8 gap-y-8 sm:mt-14 sm:grid-cols-2 sm:gap-y-10 lg:grid-cols-4">
@@ -218,7 +218,7 @@ const assurances: { icon: LucideIcon; title: string; body: string }[] = [
 export function Trust() {
   return (
     <section className="border-border bg-surface/40 border-t">
-      <div className="mx-auto max-w-6xl px-4 py-14 sm:px-8 sm:py-20 lg:py-24">
+      <div className="mx-auto max-w-(--landing-w) px-4 py-14 sm:px-8 sm:py-20 lg:py-20">
         <div className="border-border bg-card relative overflow-hidden rounded-3xl border p-5 sm:rounded-[32px] sm:p-12">
           <Orb
             size="22rem"
@@ -230,7 +230,7 @@ export function Trust() {
             <span className="bg-muted text-foreground grid size-11 place-items-center rounded-2xl">
               <ShieldCheck className="size-5" strokeWidth={1.6} aria-hidden />
             </span>
-            <h2 className="text-foreground mt-5 text-[28px] leading-tight font-medium tracking-tight sm:mt-6 sm:text-[36px]">
+            <h2 className="text-foreground mt-5 text-[28px] leading-tight font-medium tracking-tight sm:mt-6 sm:text-[34px] lg:text-section">
               Your channels stay in your control.
             </h2>
           </div>
@@ -282,8 +282,8 @@ const faqs = [
 export function Faq() {
   return (
     <section id="faq" className="border-border scroll-mt-24 border-t">
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-14 sm:gap-12 sm:px-8 sm:py-20 lg:grid-cols-[0.8fr_1.2fr] lg:py-28">
-        <h2 className="text-foreground text-[30px] leading-tight font-medium tracking-tight sm:text-[34px] lg:text-[42px]">
+      <div className="mx-auto grid max-w-(--landing-w) gap-8 px-4 py-14 sm:gap-12 sm:px-8 sm:py-20 lg:grid-cols-[0.8fr_1.2fr] lg:py-24">
+        <h2 className="text-foreground text-[30px] leading-tight font-medium tracking-tight sm:text-[34px] lg:text-section">
           Questions, answered.
         </h2>
         <div className="divide-border border-border divide-y border-y">
@@ -319,7 +319,7 @@ export function Faq() {
 export function FinalCta() {
   return (
     <section className="border-border border-t">
-      <div className="mx-auto max-w-6xl px-4 py-14 sm:px-8 sm:py-20 lg:py-24">
+      <div className="mx-auto max-w-(--landing-w) px-4 py-14 sm:px-8 sm:py-20 lg:py-20">
         <div className="bg-foreground text-background relative overflow-hidden rounded-3xl px-5 py-12 text-center sm:rounded-[32px] sm:px-16 sm:py-16">
           <Orb
             size="20rem"
@@ -334,7 +334,7 @@ export function FinalCta() {
             className="animate-orb-slow absolute -top-24 -right-12 opacity-60"
           />
           <div className="relative mx-auto max-w-2xl">
-            <h2 className="text-[30px] leading-tight font-medium tracking-tight sm:text-[44px]">
+            <h2 className="text-[30px] leading-tight font-medium tracking-tight sm:text-[38px] lg:text-cta">
               Ready to publish everywhere at once?
             </h2>
             <p className="mt-4 text-base opacity-80 sm:text-lg">

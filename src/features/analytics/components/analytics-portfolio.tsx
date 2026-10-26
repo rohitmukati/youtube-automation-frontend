@@ -3,15 +3,18 @@
 import * as React from "react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { BarChart3, Table2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Alert } from "@/components/ui/alert";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { AIReportView } from "@/features/analytics/components/ai-report-view";
+import { PortfolioVisuals } from "@/features/analytics/components/analytics-portfolio-visuals";
 import { analyticsApi } from "@/features/analytics/api";
 import {
   AnalyticsError,
@@ -31,6 +34,8 @@ import { formatDate, formatDateTime } from "@/lib/format";
 import { queryKeys } from "@/lib/query-keys";
 import type { AIReport, AILanguage } from "@/types/api";
 
+type PortfolioTab = "table" | "visuals";
+
 type SortField =
   "subscribers" | "views" | "recent_uploads_30d" | "growth" | "average_performance_index";
 
@@ -41,6 +46,7 @@ export function AnalyticsPortfolio() {
   const savedReports = useAIReports({ report_type: "portfolio", limit: 20, offset: 0 });
   const deleteReport = useDeleteAIReport();
   const [sort, setSort] = React.useState<SortField>("views");
+  const [tab, setTab] = React.useState<PortfolioTab>("table");
   const [language, setLanguage] = useAILanguage();
   const [days, setDays] = React.useState(28);
   const [syncingChannels, setSyncingChannels] = React.useState(false);
@@ -124,7 +130,7 @@ export function AnalyticsPortfolio() {
   });
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="portfolio-ambient flex flex-col gap-6">
       {query.isError ? (
         <AnalyticsError error={query.error} retry={() => void query.refetch()} />
       ) : null}
@@ -233,111 +239,134 @@ export function AnalyticsPortfolio() {
           variant="lagoon"
         />
       ) : (
-        <Card className="overflow-hidden p-0">
-          <div className="flex flex-wrap items-center justify-between gap-3 p-4">
-            <h2 className="text-foreground font-semibold">Channel comparison</h2>
-            <label className="text-muted-foreground flex items-center gap-2 text-sm">
-              Sort by
-              <select
-                className="border-border-strong bg-background text-foreground h-9 rounded-xl border px-3"
-                value={sort}
-                onChange={(event) => setSort(event.target.value as SortField)}
-              >
-                <option value="views">Views</option>
-                <option value="subscribers">Subscribers</option>
-                <option value="recent_uploads_30d">Recent uploads</option>
-                <option value="growth">28-day views</option>
-                <option value="average_performance_index">Performance index</option>
-              </select>
-            </label>
+        <>
+          <div className="max-w-full overflow-x-auto">
+            <SegmentedControl
+              label="Portfolio view"
+              value={tab}
+              onChange={(value) => setTab(value)}
+              options={[
+                { value: "table", label: "Channel comparison", icon: <Table2 /> },
+                { value: "visuals", label: "See Visuals", icon: <BarChart3 /> },
+              ]}
+            />
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[920px] border-collapse text-left text-sm">
-              <thead className="bg-muted text-muted-foreground text-xs">
-                <tr>
-                  {[
-                    "Channel",
-                    "Subscribers",
-                    "Views",
-                    "Uploads (30 days)",
-                    "28-day growth",
-                    "Performance",
-                    "Latest upload",
-                    "Last sync",
-                    "Status",
-                  ].map((column) => (
-                    <th key={column} className="px-4 py-3 font-medium">
-                      {column}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((channel) => (
-                  <tr
-                    key={channel.account_id}
-                    className="border-border hover:bg-muted/50 border-b last:border-0"
+          {tab === "visuals" ? (
+            <PortfolioVisuals
+              channels={query.data.channels}
+              onSync={() => void syncPortfolioChannels()}
+              syncing={syncingChannels}
+            />
+          ) : (
+            <Card className="overflow-hidden p-0">
+              <div className="flex flex-wrap items-center justify-between gap-3 p-4">
+                <h2 className="text-foreground font-semibold">Channel comparison</h2>
+                <label className="text-muted-foreground flex items-center gap-2 text-sm">
+                  Sort by
+                  <select
+                    className="border-border-strong bg-background text-foreground h-9 rounded-xl border px-3"
+                    value={sort}
+                    onChange={(event) => setSort(event.target.value as SortField)}
                   >
-                    <td className="px-4 py-3">
-                      <Link
-                        href={`/accounts/${channel.account_id}`}
-                        className="flex items-center gap-3"
+                    <option value="views">Views</option>
+                    <option value="subscribers">Subscribers</option>
+                    <option value="recent_uploads_30d">Recent uploads</option>
+                    <option value="growth">28-day views</option>
+                    <option value="average_performance_index">Performance index</option>
+                  </select>
+                </label>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[920px] border-collapse text-left text-sm">
+                  <thead className="bg-muted text-muted-foreground text-xs">
+                    <tr>
+                      {[
+                        "Channel",
+                        "Subscribers",
+                        "Views",
+                        "Uploads (30 days)",
+                        "28-day growth",
+                        "Performance",
+                        "Latest upload",
+                        "Last sync",
+                        "Status",
+                      ].map((column) => (
+                        <th key={column} className="px-4 py-3 font-medium">
+                          {column}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((channel) => (
+                      <tr
+                        key={channel.account_id}
+                        className="border-border hover:bg-muted/50 border-b last:border-0"
                       >
-                        <Avatar
-                          src={channel.channel_thumbnail_url}
-                          name={channel.channel_title}
-                          size={38}
-                        />
-                        <span className="min-w-0">
-                          <span className="text-foreground block truncate font-medium">
-                            {channel.channel_title}
-                          </span>
-                          <span className="text-muted-foreground text-xs">{channel.nickname}</span>
-                        </span>
-                      </Link>
-                    </td>
-                    <td className="text-body px-4 py-3">{formatCount(channel.subscribers)}</td>
-                    <td className="text-body px-4 py-3">{formatCount(channel.total_views)}</td>
-                    <td className="text-body px-4 py-3">
-                      {formatCount(channel.recent_uploads_30d)}
-                    </td>
-                    <td className="text-body px-4 py-3">
-                      {formatCount(channel.views_28d)} views ·{" "}
-                      {formatCount(channel.subscribers_28d)} subs
-                    </td>
-                    <td className="text-body px-4 py-3">
-                      {channel.average_performance_index == null
-                        ? "—"
-                        : `${channel.average_performance_index.toFixed(2)}x`}
-                    </td>
-                    <td className="text-body px-4 py-3">
-                      {channel.top_video ? (
-                        <a
-                          href={`https://www.youtube.com/watch?v=${encodeURIComponent(channel.top_video.video_id)}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-foreground block max-w-48 truncate hover:underline"
-                        >
-                          {channel.top_video.title}
-                        </a>
-                      ) : channel.last_published_at ? (
-                        formatDate(channel.last_published_at)
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td className="text-body px-4 py-3">
-                      {formatDateTime(channel.sync.last_synced_at)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <ChannelFlags channel={channel} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
+                        <td className="px-4 py-3">
+                          <Link
+                            href={`/accounts/${channel.account_id}`}
+                            className="flex items-center gap-3"
+                          >
+                            <Avatar
+                              src={channel.channel_thumbnail_url}
+                              name={channel.channel_title}
+                              size={38}
+                            />
+                            <span className="min-w-0">
+                              <span className="text-foreground block truncate font-medium">
+                                {channel.channel_title}
+                              </span>
+                              <span className="text-muted-foreground text-xs">
+                                {channel.nickname}
+                              </span>
+                            </span>
+                          </Link>
+                        </td>
+                        <td className="text-body px-4 py-3">{formatCount(channel.subscribers)}</td>
+                        <td className="text-body px-4 py-3">{formatCount(channel.total_views)}</td>
+                        <td className="text-body px-4 py-3">
+                          {formatCount(channel.recent_uploads_30d)}
+                        </td>
+                        <td className="text-body px-4 py-3">
+                          {formatCount(channel.views_28d)} views ·{" "}
+                          {formatCount(channel.subscribers_28d)} subs
+                        </td>
+                        <td className="text-body px-4 py-3">
+                          {channel.average_performance_index == null
+                            ? "—"
+                            : `${channel.average_performance_index.toFixed(2)}x`}
+                        </td>
+                        <td className="text-body px-4 py-3">
+                          {channel.top_video ? (
+                            <a
+                              href={`https://www.youtube.com/watch?v=${encodeURIComponent(channel.top_video.video_id)}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-foreground block max-w-48 truncate hover:underline"
+                            >
+                              {channel.top_video.title}
+                            </a>
+                          ) : channel.last_published_at ? (
+                            formatDate(channel.last_published_at)
+                          ) : (
+                            "—"
+                          )}
+                        </td>
+                        <td className="text-body px-4 py-3">
+                          {formatDateTime(channel.sync.last_synced_at)}
+                        </td>
+                        <td className="px-4 py-3">
+                          <ChannelFlags channel={channel} />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          )}
+        </>
       )}
 
       <section className="flex flex-col gap-3">

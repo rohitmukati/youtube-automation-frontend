@@ -36,6 +36,7 @@
   --orb-b: #ff4704;
   --orb-c: #0447ff;
   --orb-d: #b9a7ff;
+  --landing-w: clamp(72rem, 88vw, 88rem);
   color-scheme: light;
 }
 
@@ -70,6 +71,9 @@
 }
 
 @theme inline {
+  --text-hero: clamp(3rem, 2rem + 1.6vw, 3.375rem);
+  --text-section: clamp(2rem, 1.4rem + 1.1vw, 2.375rem);
+  --text-cta: clamp(2.25rem, 1.6rem + 1vw, 2.5rem);
   --font-sans:
     "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --color-background: var(--background);
@@ -282,6 +286,62 @@
   }
 
   .dashboard-ambient > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .portfolio-ambient {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .portfolio-ambient::before {
+    position: absolute;
+    z-index: 0;
+    inset: -4rem 0;
+    pointer-events: none;
+    content: "";
+    background:
+      radial-gradient(
+        ellipse 30rem 24rem at 18% 10%,
+        color-mix(in srgb, var(--orb-c) 8%, transparent),
+        transparent 72%
+      ),
+      radial-gradient(
+        ellipse 28rem 22rem at 86% 14%,
+        color-mix(in srgb, var(--orb-d) 8%, transparent),
+        transparent 72%
+      ),
+      radial-gradient(
+        ellipse 26rem 22rem at 8% 48%,
+        color-mix(in srgb, var(--orb-a) 7%, transparent),
+        transparent 72%
+      ),
+      radial-gradient(
+        ellipse 28rem 22rem at 92% 58%,
+        color-mix(in srgb, var(--orb-c) 7%, transparent),
+        transparent 72%
+      ),
+      radial-gradient(
+        ellipse 30rem 22rem at 30% 92%,
+        color-mix(in srgb, var(--orb-d) 8%, transparent),
+        transparent 72%
+      ),
+      radial-gradient(
+        ellipse 26rem 20rem at 88% 100%,
+        color-mix(in srgb, var(--orb-a) 7%, transparent),
+        transparent 72%
+      );
+  }
+
+  @media (min-width: 640px) {
+    .portfolio-ambient::before {
+      right: -1rem;
+      left: -1rem;
+    }
+  }
+
+  .portfolio-ambient > * {
     position: relative;
     z-index: 1;
   }

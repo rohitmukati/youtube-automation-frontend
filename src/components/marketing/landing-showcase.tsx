@@ -41,13 +41,13 @@ const reportTypes: { icon: LucideIcon; title: string; body: string }[] = [
 export function AiInsights() {
   return (
     <section id="insights" className="border-border scroll-mt-24 border-t">
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-14 sm:px-8 sm:py-20 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16 lg:py-28">
+      <div className="mx-auto grid max-w-(--landing-w) items-center gap-12 px-4 py-14 sm:px-8 sm:py-20 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16 lg:py-24">
         <div className="min-w-0">
           <span className="bg-muted text-foreground inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium">
             <Sparkles className="size-3.5" aria-hidden />
             AI analytics
           </span>
-          <h2 className="text-foreground mt-5 text-[30px] leading-tight font-medium tracking-tight sm:text-[34px] lg:text-[42px]">
+          <h2 className="text-foreground mt-5 text-[30px] leading-tight font-medium tracking-tight sm:text-[34px] lg:text-section">
             Let AI read your analytics, so you know what to publish next.
           </h2>
           <p className="text-body mt-4 max-w-xl text-lg">
@@ -161,13 +161,13 @@ function CardTitle({ icon: Icon, title, hint }: { icon: LucideIcon; title: strin
 export function GrowthTools() {
   return (
     <section id="grow" className="border-border bg-surface/40 scroll-mt-24 border-t">
-      <div className="mx-auto max-w-6xl px-4 py-14 sm:px-8 sm:py-20 lg:py-28">
+      <div className="mx-auto max-w-(--landing-w) px-4 py-14 sm:px-8 sm:py-20 lg:py-24">
         <div className="max-w-2xl">
           <span className="bg-muted text-foreground inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium">
             <TrendingUp className="size-3.5" aria-hidden />
             Grow faster
           </span>
-          <h2 className="text-foreground mt-5 text-[30px] leading-tight font-medium tracking-tight sm:text-[34px] lg:text-[42px]">
+          <h2 className="text-foreground mt-5 text-[30px] leading-tight font-medium tracking-tight sm:text-[34px] lg:text-section">
             Grow every channel, not just the biggest one.
           </h2>
           <p className="text-body mt-4 text-lg">

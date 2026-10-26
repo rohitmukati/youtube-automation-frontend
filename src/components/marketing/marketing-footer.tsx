@@ -30,7 +30,7 @@ const columns = [
 export function MarketingFooter() {
   return (
     <footer className="border-border border-t">
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:gap-10 sm:px-8 sm:py-14 md:grid-cols-[1.4fr_repeat(3,1fr)]">
+      <div className="mx-auto grid max-w-(--landing-w) gap-8 px-4 py-10 sm:gap-10 sm:px-8 sm:py-14 md:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div className="max-w-xs">
           <Logo />
           <p className="text-muted-foreground mt-3 text-sm sm:mt-4">
@@ -56,7 +56,7 @@ export function MarketingFooter() {
         ))}
       </div>
       <div className="border-border border-t">
-        <div className="text-muted-foreground mx-auto flex max-w-6xl flex-col gap-2 px-4 py-5 text-xs sm:px-8 sm:py-6 md:flex-row md:justify-between">
+        <div className="text-muted-foreground mx-auto flex max-w-(--landing-w) flex-col gap-2 px-4 py-5 text-xs sm:px-8 sm:py-6 md:flex-row md:justify-between">
           <p>
             © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
           </p>

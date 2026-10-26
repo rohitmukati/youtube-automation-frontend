@@ -13,7 +13,7 @@ const links = [
 export function MarketingHeader() {
   return (
     <header className="border-border/70 bg-background/85 sticky top-0 z-40 border-b backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:h-16 sm:gap-6 sm:px-8">
+      <div className="mx-auto flex h-14 max-w-(--landing-w) items-center gap-3 px-4 sm:h-16 lg:h-15 sm:gap-6 sm:px-8">
         <Logo />
         <nav aria-label="Primary" className="ml-6 hidden items-center gap-1 md:flex">
           {links.map((link) => (
