@@ -15,7 +15,7 @@ export const PROTECTED_PREFIXES = [
 ] as const;
 
 export const LIMITS = {
-  videoBytes: env.maxVideoMb * 1024 * 1024,
+  videoBytes: 1_610_612_736,
   imageBytes: env.maxImageMb * 1024 * 1024,
   thumbnailBytes: 2 * 1024 * 1024,
   titleMax: 100,
@@ -41,7 +41,7 @@ export const FILE_TYPES = {
       "video/webm",
       "video/mpeg",
     ],
-    extensions: [".mp4", ".mov", ".avi", ".mkv", ".webm", ".mpeg", ".mpg"],
+    extensions: [".mp4", ".m4v", ".mov", ".avi", ".mkv", ".webm", ".mpeg", ".mpg"],
   },
   image: {
     mime: ["image/jpeg", "image/png", "image/webp", "image/gif"],
@@ -54,4 +54,14 @@ export const POLL_INTERVALS = {
   activeList: 5000,
 } as const;
 
-export const ACTIVE_JOB_STATUSES = ["queued", "running"] as const;
+export const ACTIVE_JOB_STATUSES = ["uploading_media", "queued", "running"] as const;
+
+export const FINAL_JOB_STATUSES = [
+  "completed",
+  "partially_completed",
+  "failed",
+  "cancelled",
+] as const;
+
+/** Only JPG and PNG thumbnails are accepted by YouTube. */
+export const THUMBNAIL_MIME = ["image/jpeg", "image/png"] as const;

@@ -9,6 +9,7 @@ interface StatusMeta {
 }
 
 export const jobStatusMeta: Record<UploadJobStatus, StatusMeta> = {
+  uploading_media: { label: "Uploading video", tone: "info", pulse: true },
   queued: { label: "Queued", tone: "neutral", pulse: true },
   running: { label: "Publishing", tone: "info", pulse: true },
   completed: { label: "Completed", tone: "success" },
@@ -36,9 +37,10 @@ export const thumbnailStatusLabel: Record<ThumbnailStatus, string | null> = {
 export const errorHints: Record<string, string> = {
   network_error: "The connection was interrupted. Retry to try again.",
   youtube_unavailable: "YouTube had a temporary problem. Retry in a few minutes.",
-  storage_unavailable: "Storage could not be reached. Retry in a moment.",
-  source_unreadable: "The video could not be read from Storage.",
-  quota_exceeded: "The daily upload limit was reached. Retry after the limit resets.",
+  storage_unavailable: "Temporary storage could not be reached. Retry in a moment.",
+  source_unreadable: "The video could not be read from temporary storage. Retry in a moment.",
+  quota_exceeded:
+    "The daily limit of the Google project was reached. This channel continues by itself after the reset, or you can retry later.",
   channel_upload_limit: "This channel reached its own daily upload limit on YouTube.",
   reconnect_required: "Reconnect this account from YouTube Accounts, then retry.",
   account_unavailable: "This account was disconnected or removed.",
@@ -46,7 +48,11 @@ export const errorHints: Record<string, string> = {
   no_youtube_channel: "The Google account has no YouTube channel.",
   forbidden: "YouTube refused the request for this channel.",
   rejected_by_youtube: "YouTube rejected this video.",
-  source_missing: "The video was deleted from Storage before it was uploaded.",
+  source_missing: "The video file is no longer stored. Publish it again.",
+  media_expired: "The video file is no longer stored. Publish it again.",
+  media_upload_incomplete:
+    "The video was not fully uploaded from the browser in time. Publish it again.",
+  invalid_video_file: "The file is not a valid video. Publish again with a different file.",
   interrupted: "The upload was interrupted repeatedly. Retry to start again.",
   unexpected_error: "An unexpected error occurred. Retry, or contact support if it continues.",
 };

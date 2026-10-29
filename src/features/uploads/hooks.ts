@@ -4,7 +4,9 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { toast } from "sonner";
 import { ACTIVE_JOB_STATUSES, POLL_INTERVALS } from "@/config/constants";
 import { uploadsApi, type UploadListParams } from "@/features/uploads/api";
-import { getErrorMessage } from "@/lib/api/errors";
+import { isJobFinished } from "@/features/uploads/rules";
+import { uploadManager } from "@/features/uploads/upload-manager";
+import { ApiError, getErrorMessage } from "@/lib/api/errors";
 import { queryKeys } from "@/lib/query-keys";
 import type { CreateUploadRequest, UploadJobStatus } from "@/types/api";
 
@@ -19,18 +21,26 @@ export function useUploads(params: UploadListParams) {
     placeholderData: keepPreviousData,
     refetchInterval: (query) => {
       const jobs = query.state.data?.jobs;
-      return jobs?.some((job) => isActiveStatus(job.status)) ? POLL_INTERVALS.activeList : false;
+      return jobs?.some((job) => !isJobFinished(job)) ? POLL_INTERVALS.activeList : false;
     },
   });
 }
 
-export function useUpload(id: string) {
+export function useUpload(id: string, enabled = true) {
   return useQuery({
     queryKey: queryKeys.uploads.detail(id),
     queryFn: () => uploadsApi.get(id),
+    enabled,
     refetchInterval: (query) => {
       const job = query.state.data;
-      return job && isActiveStatus(job.status) ? POLL_INTERVALS.activeJob : false;
+      if (!job) return false;
+      // The job status can trail the channel statuses for a moment, so keep polling until
+      // the status is final AND no channel is active any more.
+      if (isJobFinished(job)) return false;
+      // While the browser is still sending the video there is little to see on the server.
+      return job.status === "uploading_media"
+        ? POLL_INTERVALS.activeList
+        : POLL_INTERVALS.activeJob;
     },
   });
 }
@@ -48,9 +58,20 @@ export function useCreateUpload() {
   return useMutation({
     mutationFn: (payload: CreateUploadRequest) => uploadsApi.create(payload),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.uploads.all });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.uploads.all }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.uploads.quota() }),
+      ]);
     },
   });
+}
+
+/** Messages for the two retry failures that need a custom text. */
+function retryErrorMessage(error: unknown): string {
+  if (error instanceof ApiError && error.code === "media_expired") {
+    return "The video file is no longer stored. Please publish it again.";
+  }
+  return getErrorMessage(error);
 }
 
 export function useRetryUpload(id: string) {
@@ -61,16 +82,22 @@ export function useRetryUpload(id: string) {
       await queryClient.invalidateQueries({ queryKey: queryKeys.uploads.all });
       toast.success("Retrying the failed channels.");
     },
-    onError: (error) => toast.error(getErrorMessage(error)),
+    onError: async (error) => {
+      toast.error(retryErrorMessage(error));
+      // The file may have just been removed: refresh so the Retry button disappears.
+      await queryClient.invalidateQueries({ queryKey: queryKeys.uploads.all });
+    },
   });
 }
 
 export function useCancelUpload(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => uploadsApi.cancel(id),
+    // Also stops this browser's own in-flight requests when the video is still being sent.
+    mutationFn: () => uploadManager.cancelOnServer(id),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.uploads.all });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.uploads.quota() });
       toast.success("Upload cancelled for unfinished channels.");
     },
     onError: (error) => toast.error(getErrorMessage(error)),

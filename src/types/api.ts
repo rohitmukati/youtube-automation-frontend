@@ -95,7 +95,7 @@ export interface YouTubeCredentialsStatus {
   message: string | null;
 }
 
-export type StorageFileType = "video" | "image";
+export type StorageFileType = "image";
 
 export interface StorageFile {
   id: UUID;
@@ -117,13 +117,27 @@ export interface StorageFileListResponse {
 
 export type PrivacyStatus = "public" | "unlisted" | "private";
 export type UploadJobStatus =
-  "queued" | "running" | "completed" | "partially_completed" | "failed" | "cancelled";
+  | "uploading_media"
+  | "queued"
+  | "running"
+  | "completed"
+  | "partially_completed"
+  | "failed"
+  | "cancelled";
 export type UploadTargetStatus =
   "pending" | "uploading" | "retrying" | "done" | "failed" | "cancelled";
 export type ThumbnailStatus = "none" | "pending" | "done" | "failed";
+export type MediaStatus = "uploading" | "ready" | "deleted" | "aborted";
+
+export interface DeclaredFile {
+  name: string;
+  size_bytes: number;
+  content_type?: string | null;
+}
 
 export interface CreateUploadRequest {
-  storage_file_id: UUID;
+  file: DeclaredFile;
+  client_request_id?: string;
   account_ids: UUID[];
   title: string;
   description: string;
@@ -137,6 +151,31 @@ export interface CreateUploadRequest {
   thumbnail_file_id: UUID | null;
 }
 
+export interface PartUrl {
+  part_number: number;
+  size_bytes: number;
+  url: string;
+}
+
+export interface MediaUploadInfo {
+  asset_id: string;
+  status: MediaStatus;
+  size_bytes: number;
+  part_size_bytes: number;
+  total_parts: number;
+  max_parallel_parts: number;
+  upload_deadline: string | null;
+  uploaded_part_numbers: number[];
+  parts: PartUrl[];
+}
+
+export interface MediaState {
+  job_id: UUID;
+  media_status: MediaStatus | null;
+  media_expires_at: string | null;
+  upload: MediaUploadInfo | null;
+}
+
 export interface UploadTarget {
   id: UUID;
   account_id: UUID | null;
@@ -147,6 +186,7 @@ export interface UploadTarget {
   status: UploadTargetStatus;
   progress_percent: number;
   attempts: number;
+  bytes_confirmed: number;
   max_attempts: number;
   next_attempt_at: string | null;
   youtube_video_id: string | null;
@@ -164,7 +204,8 @@ export interface UploadJobSummary {
   status: UploadJobStatus;
   title: string;
   privacy_status: PrivacyStatus;
-  storage_file_id: UUID | null;
+  media_status: MediaStatus | null;
+  media_expires_at: string | null;
   source_file_name: string;
   source_size_bytes: number;
   total_channels: number;
@@ -188,6 +229,12 @@ export interface UploadJobDetail extends UploadJobSummary {
   thumbnail_file_id: UUID | null;
   thumbnail_file_name: string | null;
   targets: UploadTarget[];
+}
+
+export interface CreateUploadResponse {
+  job: UploadJobDetail;
+  upload: MediaUploadInfo | null;
+  reused: boolean;
 }
 
 export interface UploadChannelBrief {

@@ -1,12 +1,16 @@
 import { z } from "zod";
 import { LIMITS } from "@/config/constants";
+import { validateVideoFile } from "@/features/uploads/video-file";
 import { byteLength } from "@/lib/utils";
 
 const noAngleBrackets = (value: string) => !/[<>]/.test(value);
 
 export const publishSchema = z
   .object({
-    storageFileId: z.string().min(1, "Choose a video from Storage."),
+    // The video is picked on this computer. Nothing is uploaded until Publish is pressed.
+    videoFile: z.custom<File | null>(
+      (value) => value === null || (typeof File !== "undefined" && value instanceof File),
+    ),
     thumbnailFileId: z.string().nullable(),
     title: z
       .string()
@@ -40,6 +44,16 @@ export const publishSchema = z
       .max(LIMITS.maxChannelsPerUpload, `Choose at most ${LIMITS.maxChannelsPerUpload} channels.`),
   })
   .superRefine((values, context) => {
+    if (!values.videoFile) {
+      context.addIssue({
+        code: "custom",
+        path: ["videoFile"],
+        message: "Choose a video from your computer.",
+      });
+    } else {
+      const problem = validateVideoFile(values.videoFile);
+      if (problem) context.addIssue({ code: "custom", path: ["videoFile"], message: problem });
+    }
     if (!values.schedule) return;
     const when = new Date(values.publishAt);
     if (!values.publishAt || Number.isNaN(when.getTime())) {

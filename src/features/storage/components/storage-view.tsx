@@ -10,7 +10,6 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Pagination } from "@/components/ui/pagination";
-import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LIMITS } from "@/config/constants";
 import { EditTagsDialog } from "@/features/storage/components/edit-tags-dialog";
@@ -20,15 +19,12 @@ import { UploadDialog } from "@/features/storage/components/upload-dialog";
 import { useDeleteFile, useStorageFiles } from "@/features/storage/hooks";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { getErrorMessage } from "@/lib/api/errors";
-import type { StorageFile, StorageFileType } from "@/types/api";
-
-type TypeFilter = "all" | StorageFileType;
+import type { StorageFile } from "@/types/api";
 
 export function StorageView() {
   const router = useRouter();
   const params = useSearchParams();
 
-  const [type, setTypeState] = React.useState<TypeFilter>("all");
   const [search, setSearch] = React.useState(params.get("search") ?? "");
   const [offset, setOffset] = React.useState(0);
   const [uploadManual, setUploadManual] = React.useState(false);
@@ -45,44 +41,28 @@ export function StorageView() {
     if (!open && params.get("upload") === "1") router.replace("/storage", { scroll: false });
   }
 
-  function setType(next: TypeFilter) {
-    setTypeState(next);
-    setOffset(0);
-  }
-
   const { data, isLoading, isFetching, isError, error, refetch } = useStorageFiles({
-    type: type === "all" ? undefined : type,
     search: debouncedSearch || undefined,
     limit: LIMITS.storagePageSize,
     offset,
   });
 
   const files = data?.files ?? [];
-  const filtering = type !== "all" || debouncedSearch !== "";
+  const filtering = debouncedSearch !== "";
 
   return (
     <div className="flex flex-col gap-6 sm:gap-8">
       <PageHeader
-        title="Storage"
-        description="Your private library of videos and images. Publish any video to your channels in a few clicks."
+        title="Thumbnails"
+        description="Your private library of images, used as custom thumbnails. Videos are not stored here: you choose the video on the Publish page and it uploads when you press Publish."
         actions={
           <Button onClick={() => setUploadOpen(true)}>
-            <FileUp /> Upload files
+            <FileUp /> Upload images
           </Button>
         }
       />
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <SegmentedControl<TypeFilter>
-          label="Filter by type"
-          value={type}
-          onChange={setType}
-          options={[
-            { value: "all", label: "All" },
-            { value: "video", label: "Videos" },
-            { value: "image", label: "Images" },
-          ]}
-        />
+      <div className="flex flex-wrap items-center justify-end gap-3">
         <div className="relative w-full sm:w-72">
           <Search
             className="text-muted-foreground pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2"
@@ -96,7 +76,7 @@ export function StorageView() {
               setOffset(0);
             }}
             placeholder="Search by name or tag"
-            aria-label="Search files"
+            aria-label="Search images"
             className="h-10 pl-10"
           />
         </div>
@@ -105,7 +85,7 @@ export function StorageView() {
       {isError ? (
         <Alert
           tone="danger"
-          title="Files could not be loaded"
+          title="Images could not be loaded"
           action={
             <Button size="sm" variant="outline" onClick={() => refetch()}>
               Try again
@@ -128,28 +108,28 @@ export function StorageView() {
         filtering ? (
           <EmptyState
             variant="bloom"
-            title="No files match"
-            description="Try a different name or tag, or clear the filters."
+            title="No images match"
+            description="Try a different name or tag, or clear the search."
             action={
               <Button
                 variant="outline"
                 onClick={() => {
                   setSearch("");
-                  setType("all");
+                  setOffset(0);
                 }}
               >
-                Clear filters
+                Clear search
               </Button>
             }
           />
         ) : (
           <EmptyState
             variant="meadow"
-            title="Your library is empty"
-            description="Upload a video to get started. Add images to use as custom thumbnails."
+            title="No images yet"
+            description="Upload JPG or PNG images to use as custom thumbnails when you publish."
             action={
               <Button onClick={() => setUploadOpen(true)}>
-                <FileUp /> Upload files
+                <FileUp /> Upload images
               </Button>
             }
           />
@@ -187,9 +167,9 @@ export function StorageView() {
       <ConfirmDialog
         open={Boolean(deleteTarget)}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Delete this file?"
-        description={`${deleteTarget?.original_name ?? "This file"} will be removed from Storage permanently. Past uploads are not affected.`}
-        confirmLabel="Delete file"
+        title="Delete this image?"
+        description={`${deleteTarget?.original_name ?? "This image"} will be removed permanently. Past uploads are not affected.`}
+        confirmLabel="Delete image"
         onConfirm={async () => {
           if (deleteTarget) await remove.mutateAsync(deleteTarget.id);
         }}

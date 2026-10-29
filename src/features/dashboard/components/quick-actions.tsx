@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
-  FolderOpen,
   History,
+  ImageIcon,
   MonitorPlay,
   RotateCcw,
   Send,
@@ -11,9 +11,9 @@ import {
 
 const actions: { label: string; href: string; icon: LucideIcon }[] = [
   { label: "Publish", href: "/uploads/new", icon: Send },
-  { label: "Upload file", href: "/storage?upload=1", icon: Upload },
+  { label: "Add thumbnail", href: "/storage?upload=1", icon: Upload },
   { label: "Connect account", href: "/accounts?connect=1", icon: MonitorPlay },
-  { label: "Storage", href: "/storage", icon: FolderOpen },
+  { label: "Thumbnails", href: "/storage", icon: ImageIcon },
   { label: "Upload history", href: "/uploads", icon: History },
   { label: "Failed uploads", href: "/uploads?status=failed", icon: RotateCcw },
 ];

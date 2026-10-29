@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { CircleAlert, CircleCheck, FileUp, Film, ImageIcon, X } from "lucide-react";
+import { CircleAlert, CircleCheck, FileUp, ImageIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,7 +17,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { TagInput } from "@/components/ui/tag-input";
 import { LIMITS } from "@/config/constants";
 import { storageApi } from "@/features/storage/api";
-import { detectFileKind, MEDIA_ACCEPT, validateMediaFile } from "@/features/storage/validation";
+import { IMAGE_ACCEPT, validateImageFile } from "@/features/storage/validation";
 import { getErrorMessage } from "@/lib/api/errors";
 import { queryKeys } from "@/lib/query-keys";
 import { cn, formatBytes } from "@/lib/utils";
@@ -56,7 +56,7 @@ function UploadBody({ onClose, onRunningChange }: UploadBodyProps) {
     const accepted: QueueItem[] = [];
     const rejected: string[] = [];
     for (const file of files) {
-      const problem = validateMediaFile(file);
+      const problem = validateImageFile(file);
       if (problem) rejected.push(`${file.name}: ${problem}`);
       else accepted.push({ id: crypto.randomUUID(), file, status: "queued", progress: 0 });
     }
@@ -109,8 +109,8 @@ function UploadBody({ onClose, onRunningChange }: UploadBodyProps) {
   return (
     <>
       <DialogHeader
-        title="Upload to Storage"
-        description="Videos and images are kept privately in your library until you publish them."
+        title="Upload images"
+        description="Images are kept privately in your library so you can use them as video thumbnails."
       />
       <DialogBody className="flex flex-col gap-5">
         <div
@@ -133,7 +133,7 @@ function UploadBody({ onClose, onRunningChange }: UploadBodyProps) {
             <FileUp className="size-5" />
           </span>
           <div>
-            <p className="text-foreground text-sm font-medium">Drag files here, or</p>
+            <p className="text-foreground text-sm font-medium">Drag images here, or</p>
             <Button
               variant="outline"
               size="sm"
@@ -141,18 +141,18 @@ function UploadBody({ onClose, onRunningChange }: UploadBodyProps) {
               onClick={() => inputRef.current?.click()}
               disabled={running}
             >
-              Choose files
+              Choose images
             </Button>
           </div>
           <p className="text-muted-foreground text-[13px]">
-            Videos up to {formatBytes(LIMITS.videoBytes)} · Images up to{" "}
-            {formatBytes(LIMITS.imageBytes)}
+            JPG, PNG, WEBP or GIF · up to {formatBytes(LIMITS.imageBytes)} · YouTube thumbnails must be
+            JPG or PNG
           </p>
           <input
             ref={inputRef}
             type="file"
             multiple
-            accept={MEDIA_ACCEPT}
+            accept={IMAGE_ACCEPT}
             className="sr-only"
             tabIndex={-1}
             onChange={(event) => {
@@ -176,11 +176,10 @@ function UploadBody({ onClose, onRunningChange }: UploadBodyProps) {
         {items.length > 0 ? (
           <ul className="flex flex-col gap-2">
             {items.map((item) => {
-              const Icon = detectFileKind(item.file) === "video" ? Film : ImageIcon;
               return (
                 <li key={item.id} className="border-border rounded-2xl border p-3.5">
                   <div className="flex items-center gap-3">
-                    <Icon className="text-muted-foreground size-4 shrink-0" aria-hidden />
+                    <ImageIcon className="text-muted-foreground size-4 shrink-0" aria-hidden />
                     <div className="min-w-0 flex-1">
                       <p className="text-foreground truncate text-sm">{item.file.name}</p>
                       <p className="text-muted-foreground text-[13px]">
@@ -229,7 +228,7 @@ function UploadBody({ onClose, onRunningChange }: UploadBodyProps) {
           </ul>
         ) : null}
 
-        <Field label="Tags" optional hint="Applied to every file in this batch.">
+        <Field label="Tags" optional hint="Applied to every image in this batch.">
           <TagInput value={tags} onChange={setTags} maxTagLength={LIMITS.tagMax} />
         </Field>
       </DialogBody>
@@ -239,7 +238,7 @@ function UploadBody({ onClose, onRunningChange }: UploadBodyProps) {
         </Button>
         {allDone ? null : (
           <Button onClick={startUpload} loading={running} disabled={remaining === 0}>
-            {remaining > 0 ? `Upload ${remaining} ${remaining === 1 ? "file" : "files"}` : "Upload"}
+            {remaining > 0 ? `Upload ${remaining} ${remaining === 1 ? "image" : "images"}` : "Upload"}
           </Button>
         )}
       </DialogFooter>

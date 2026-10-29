@@ -1,7 +1,7 @@
 import {
-  FolderOpen,
   History,
   House,
+  ImageIcon,
   MonitorPlay,
   Send,
   Settings,
@@ -28,7 +28,7 @@ export const primaryNav: NavItem[] = [
     match: (pathname) => pathname === "/accounts" || startsWith("/youtube")(pathname),
     quickAction: { href: "/accounts?connect=1", label: "Connect account" },
   },
-  { label: "Storage", href: "/storage", icon: FolderOpen, match: startsWith("/storage") },
+  { label: "Thumbnails", href: "/storage", icon: ImageIcon, match: startsWith("/storage") },
 ];
 
 export const channelNav: NavItem[] = [

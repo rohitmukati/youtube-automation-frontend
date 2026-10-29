@@ -1,7 +1,6 @@
 "use client";
 
-import { Ellipsis, Eye, Film, ImageIcon, Send, Tag, Trash2 } from "lucide-react";
-import Link from "next/link";
+import { Ellipsis, Eye, ImageIcon, Tag, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,27 +14,12 @@ import { formatBytes } from "@/lib/utils";
 import { formatDate } from "@/lib/format";
 import type { StorageFile } from "@/types/api";
 
-export function isVideoFile(file: StorageFile): boolean {
-  return file.file_type === "video" || file.content_type.startsWith("video/");
-}
-
 export function FilePreview({ file, className }: { file: StorageFile; className?: string }) {
   if (!file.signed_url) {
     return (
       <div className={`bg-muted text-muted-foreground grid place-items-center ${className ?? ""}`}>
-        {isVideoFile(file) ? <Film className="size-8" /> : <ImageIcon className="size-8" />}
+        <ImageIcon className="size-8" />
       </div>
-    );
-  }
-  if (isVideoFile(file)) {
-    return (
-      <video
-        src={`${file.signed_url}#t=0.5`}
-        preload="metadata"
-        muted
-        playsInline
-        className={`bg-muted object-cover ${className ?? ""}`}
-      />
     );
   }
   return (
@@ -56,8 +40,6 @@ interface FileCardProps {
 }
 
 export function FileCard({ file, onPreview, onEditTags, onDelete }: FileCardProps) {
-  const video = isVideoFile(file);
-
   return (
     <article className="group border-border bg-card flex flex-col overflow-hidden rounded-3xl border">
       <button
@@ -72,8 +54,8 @@ export function FileCard({ file, onPreview, onEditTags, onDelete }: FileCardProp
         />
         <span className="absolute top-3 left-3">
           <Badge tone="outline" className="bg-background/90 backdrop-blur">
-            {video ? <Film className="size-3" /> : <ImageIcon className="size-3" />}
-            {video ? "Video" : "Image"}
+            <ImageIcon className="size-3" />
+            Image
           </Badge>
         </span>
       </button>
@@ -103,13 +85,6 @@ export function FileCard({ file, onPreview, onEditTags, onDelete }: FileCardProp
               <DropdownMenuItem onSelect={() => onPreview(file)}>
                 <Eye /> Preview
               </DropdownMenuItem>
-              {video ? (
-                <DropdownMenuItem asChild>
-                  <Link href={`/uploads/new?file=${file.id}`}>
-                    <Send /> Publish to channels
-                  </Link>
-                </DropdownMenuItem>
-              ) : null}
               <DropdownMenuItem onSelect={() => onEditTags(file)}>
                 <Tag /> Edit tags
               </DropdownMenuItem>

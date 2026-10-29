@@ -1,13 +1,7 @@
 import { api } from "@/lib/api/client";
-import type {
-  MessageResponse,
-  StorageFile,
-  StorageFileListResponse,
-  StorageFileType,
-} from "@/types/api";
+import type { MessageResponse, StorageFile, StorageFileListResponse } from "@/types/api";
 
 export interface StorageListParams {
-  type?: StorageFileType;
   tags?: string[];
   search?: string;
   limit: number;
@@ -18,7 +12,6 @@ export const storageApi = {
   async list(params: StorageListParams): Promise<StorageFileListResponse> {
     const { data } = await api.get<StorageFileListResponse>("/storage/files", {
       params: {
-        type: params.type,
         tags: params.tags && params.tags.length > 0 ? params.tags.join(",") : undefined,
         search: params.search || undefined,
         limit: params.limit,

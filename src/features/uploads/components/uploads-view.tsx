@@ -3,7 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ChevronRight, Search, Send } from "lucide-react";
+import { Ban, ChevronRight, RotateCcw, Search, Send } from "lucide-react";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { Alert } from "@/components/ui/alert";
@@ -15,18 +16,73 @@ import { Pagination } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LIMITS } from "@/config/constants";
 import { useAccounts } from "@/features/accounts/hooks";
+import { ResumeUploadControl } from "@/features/uploads/components/resume-upload-control";
 import { JobStatusBadge } from "@/features/uploads/components/status-badge";
-import { useUploads } from "@/features/uploads/hooks";
+import { UnfinishedUploadsBanner } from "@/features/uploads/components/unfinished-uploads-banner";
+import { useCancelUpload, useRetryUpload, useUploads } from "@/features/uploads/hooks";
+import { canCancel, canRetry, needsFileToResume } from "@/features/uploads/rules";
 import { jobStatusMeta, targetStatusMeta } from "@/features/uploads/status";
+import { useUploadSession } from "@/features/uploads/upload-manager";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { getErrorMessage } from "@/lib/api/errors";
 import { formatDateTime } from "@/lib/format";
-import type { UploadJobStatus } from "@/types/api";
+import type { UploadJobListItem, UploadJobStatus } from "@/types/api";
 
 const STATUSES = Object.keys(jobStatusMeta) as UploadJobStatus[];
 
 function isStatus(value: string | null): value is UploadJobStatus {
   return value !== null && (STATUSES as string[]).includes(value);
+}
+
+function JobRowActions({ job }: { job: UploadJobListItem }) {
+  const retry = useRetryUpload(job.id);
+  const cancel = useCancelUpload(job.id);
+  const session = useUploadSession(job.id);
+  const [confirmCancel, setConfirmCancel] = React.useState(false);
+
+  const sending =
+    session !== null && (session.phase === "uploading" || session.phase === "completing");
+  const showRetry = canRetry(job);
+  const showCancel = canCancel(job);
+  const showResume = needsFileToResume(job) && !sending;
+  if (!showRetry && !showCancel && !showResume) return null;
+
+  return (
+    <>
+      <div className="flex flex-wrap items-center gap-2 px-3 pb-3 sm:px-5 sm:pb-4">
+        {showResume ? <ResumeUploadControl job={job} /> : null}
+        {showRetry ? (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => retry.mutate()}
+            loading={retry.isPending}
+          >
+            <RotateCcw /> Retry failed
+          </Button>
+        ) : null}
+        {showCancel ? (
+          <Button size="sm" variant="danger-outline" onClick={() => setConfirmCancel(true)}>
+            <Ban /> Cancel
+          </Button>
+        ) : null}
+      </div>
+      <ConfirmDialog
+        open={confirmCancel}
+        onOpenChange={setConfirmCancel}
+        title={
+          job.status === "uploading_media" ? "Cancel this upload?" : "Cancel unfinished channels?"
+        }
+        description={
+          job.status === "uploading_media"
+            ? "The video upload stops and the parts already sent are deleted. To publish it you will need to start again."
+            : "Channels that already published are not affected. Unfinished channels will stop and can be retried later."
+        }
+        confirmLabel={job.status === "uploading_media" ? "Cancel upload" : "Cancel uploads"}
+        onConfirm={() => cancel.mutateAsync()}
+      />
+    </>
+  );
 }
 
 export function UploadsView() {
@@ -79,6 +135,8 @@ export function UploadsView() {
           </Button>
         }
       />
+
+      <UnfinishedUploadsBanner />
 
       <Card className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-5">
         <div className="relative sm:col-span-2 lg:col-span-1">
@@ -207,16 +265,24 @@ export function UploadsView() {
         <div className={isFetching ? "opacity-70 transition-opacity" : "transition-opacity"}>
           <ul className="flex flex-col gap-3">
             {jobs.map((job) => (
-              <li key={job.id}>
+              <li
+                key={job.id}
+                className="border-border bg-card hover:border-border-strong rounded-2xl border transition-colors"
+              >
                 <Link
                   href={`/uploads/${job.id}`}
-                  className="border-border bg-card hover:border-border-strong hover:bg-muted/40 flex items-center gap-2 rounded-2xl border px-3 py-3 transition-colors sm:gap-4 sm:px-5 sm:py-4"
+                  className="hover:bg-muted/40 flex items-center gap-2 rounded-2xl px-3 py-3 transition-colors sm:gap-4 sm:px-5 sm:py-4"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="text-foreground truncate text-[15px] font-medium">{job.title}</p>
                     <p className="text-muted-foreground mt-0.5 truncate text-[13px]">
                       {job.source_file_name} · {formatDateTime(job.created_at)}
                     </p>
+                    {job.media_status === "ready" && job.media_expires_at ? (
+                      <p className="text-muted-foreground mt-0.5 truncate text-[13px]">
+                        Video file available until {formatDateTime(job.media_expires_at)}
+                      </p>
+                    ) : null}
                   </div>
                   <ul className="hidden items-center -space-x-2 md:flex" aria-label="Channels">
                     {job.channels.slice(0, 4).map((channel, index) => (
@@ -238,11 +304,14 @@ export function UploadsView() {
                     ) : null}
                   </ul>
                   <span className="text-muted-foreground hidden w-28 text-right text-[13px] tabular-nums sm:block">
-                    {job.done_count} of {job.total_channels} published
+                    {job.status === "uploading_media"
+                      ? "Uploading video"
+                      : `${job.done_count} of ${job.total_channels} published`}
                   </span>
                   <JobStatusBadge status={job.status} />
                   <ChevronRight className="text-muted-foreground size-4 shrink-0" aria-hidden />
                 </Link>
+                <JobRowActions job={job} />
               </li>
             ))}
           </ul>

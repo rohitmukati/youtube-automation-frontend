@@ -1,39 +1,26 @@
 import { FILE_TYPES, LIMITS } from "@/config/constants";
+import { isVideoFileName } from "@/features/uploads/video-file";
 import { formatBytes } from "@/lib/utils";
-import type { StorageFileType } from "@/types/api";
 
-export function detectFileKind(file: File): StorageFileType | null {
+export const IMAGE_ACCEPT = [...FILE_TYPES.image.mime, ...FILE_TYPES.image.extensions].join(",");
+
+function isImage(file: File): boolean {
   const name = file.name.toLowerCase();
-  const matches = (kind: StorageFileType) =>
-    (FILE_TYPES[kind].mime as readonly string[]).includes(file.type) ||
-    FILE_TYPES[kind].extensions.some((extension) => name.endsWith(extension));
-  if (matches("video")) return "video";
-  if (matches("image")) return "image";
-  return null;
+  return (
+    (FILE_TYPES.image.mime as readonly string[]).includes(file.type) ||
+    FILE_TYPES.image.extensions.some((extension) => name.endsWith(extension))
+  );
 }
 
-export function validateMediaFile(
-  file: File,
-  allowed: StorageFileType[] = ["video", "image"],
-): string | null {
-  const kind = detectFileKind(file);
-  if (!kind || !allowed.includes(kind)) {
-    const labels = allowed.map((item) =>
-      item === "video" ? "MP4, MOV, AVI, MKV, WEBM or MPEG videos" : "JPG, PNG, WEBP or GIF images",
-    );
-    return `Unsupported file type. Use ${labels.join(" or ")}.`;
+/** Storage holds images only (thumbnails). Videos are uploaded when publishing. */
+export function validateImageFile(file: File): string | null {
+  if (isVideoFileName(file.name) || file.type.startsWith("video/")) {
+    return "Videos are not stored here. Choose the video on the Publish page; it uploads when you press Publish.";
   }
-  const limit = kind === "video" ? LIMITS.videoBytes : LIMITS.imageBytes;
-  if (file.size > limit)
-    return `This file is ${formatBytes(file.size)}. The limit for ${kind}s is ${formatBytes(limit)}.`;
+  if (!isImage(file)) return "Unsupported file type. Use JPG, PNG, WEBP or GIF images.";
   if (file.size === 0) return "This file is empty.";
+  if (file.size > LIMITS.imageBytes) {
+    return `This file is ${formatBytes(file.size)}. The limit for images is ${formatBytes(LIMITS.imageBytes)}.`;
+  }
   return null;
 }
-
-export const VIDEO_ACCEPT = [...FILE_TYPES.video.mime, ...FILE_TYPES.video.extensions].join(",");
-export const MEDIA_ACCEPT = [
-  ...FILE_TYPES.video.mime,
-  ...FILE_TYPES.video.extensions,
-  ...FILE_TYPES.image.mime,
-  ...FILE_TYPES.image.extensions,
-].join(",");

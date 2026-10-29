@@ -14,13 +14,16 @@ import { useStorageFiles } from "@/features/storage/hooks";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { getErrorMessage } from "@/lib/api/errors";
 import { formatBytes } from "@/lib/utils";
-import type { StorageFile, StorageFileType } from "@/types/api";
+import type { StorageFile } from "@/types/api";
 
 interface StoragePickerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  type: StorageFileType;
   title: string;
+  /** Only images with one of these content types can be picked (for example JPG and PNG). */
+  contentTypes?: readonly string[];
+  /** Text shown under the title. */
+  description?: string;
   onSelect: (file: StorageFile) => void;
 }
 
@@ -29,8 +32,9 @@ const PAGE_SIZE = 12;
 export function StoragePickerDialog({
   open,
   onOpenChange,
-  type,
   title,
+  contentTypes,
+  description = "Pick an image from your library.",
   onSelect,
 }: StoragePickerDialogProps) {
   const [search, setSearch] = React.useState("");
@@ -39,16 +43,20 @@ export function StoragePickerDialog({
   const debounced = useDebouncedValue(search.trim());
 
   const { data, isLoading, isFetching, isError, error, refetch } = useStorageFiles(
-    { type, search: debounced || undefined, limit: PAGE_SIZE, offset },
+    { search: debounced || undefined, limit: PAGE_SIZE, offset },
     open,
   );
-  const files = data?.files ?? [];
+  const allFiles = data?.files ?? [];
+  const files = contentTypes
+    ? allFiles.filter((file) => contentTypes.includes(file.content_type))
+    : allFiles;
+  const hiddenCount = allFiles.length - files.length;
 
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent size="xl">
-          <DialogHeader title={title} description={`Pick a ${type} from your Storage library.`} />
+          <DialogHeader title={title} description={description} />
           <DialogBody className="flex flex-col gap-5">
             <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
               <div className="relative min-w-0 flex-1">
@@ -88,7 +96,7 @@ export function StoragePickerDialog({
             {isError ? (
               <Alert
                 tone="danger"
-                title="Files could not be loaded"
+                title="Images could not be loaded"
                 action={
                   <Button
                     size="sm"
@@ -106,7 +114,9 @@ export function StoragePickerDialog({
 
             {!isLoading && !isError && files.length === 0 ? (
               <p className="bg-muted text-muted-foreground rounded-2xl px-4 py-10 text-center text-sm">
-                No {type}s found. Upload one to continue.
+                {hiddenCount > 0
+                  ? "No suitable images on this page. YouTube accepts JPG and PNG thumbnails only."
+                  : "No images found. Upload one to continue."}
               </p>
             ) : null}
 
@@ -137,6 +147,13 @@ export function StoragePickerDialog({
                   </li>
                 ))}
               </ul>
+            ) : null}
+
+            {hiddenCount > 0 && files.length > 0 ? (
+              <p className="text-muted-foreground text-[13px]">
+                {hiddenCount} {hiddenCount === 1 ? "image is" : "images are"} hidden because YouTube
+                accepts JPG and PNG thumbnails only.
+              </p>
             ) : null}
 
             <Pagination

@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import {
   CornerDownLeft,
   FileSearch,
-  FolderOpen,
   History,
   House,
+  ImageIcon,
   MonitorPlay,
   Plus,
   RotateCcw,
@@ -40,10 +40,10 @@ const staticCommands: Command[] = [
   },
   {
     id: "storage",
-    label: "Storage",
+    label: "Thumbnails",
     href: "/storage",
-    icon: FolderOpen,
-    keywords: "library files videos images",
+    icon: ImageIcon,
+    keywords: "storage library images thumbnails",
   },
   {
     id: "publish",
@@ -68,10 +68,10 @@ const staticCommands: Command[] = [
   },
   {
     id: "upload-files",
-    label: "Upload files to Storage",
+    label: "Upload a thumbnail image",
     href: "/storage?upload=1",
     icon: Upload,
-    keywords: "add video image",
+    keywords: "add image storage library",
   },
   {
     id: "failed",
@@ -108,7 +108,7 @@ function PaletteBody({ onClose }: { onClose: () => void }) {
       ...filtered,
       {
         id: "search-storage",
-        label: `Search Storage for “${term}”`,
+        label: `Search Thumbnails for “${term}”`,
         href: `/storage?search=${encoded}`,
         icon: FileSearch,
       },

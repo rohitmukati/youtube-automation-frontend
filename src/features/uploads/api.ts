@@ -1,7 +1,8 @@
 import { api } from "@/lib/api/client";
 import type {
   CreateUploadRequest,
-  MessageResponse,
+  CreateUploadResponse,
+  MediaState,
   UploadJobDetail,
   UploadJobListResponse,
   UploadJobStatus,
@@ -18,9 +19,14 @@ export interface UploadListParams {
   offset: number;
 }
 
+/** Joining a large file on the server can take a while, so `complete` gets a longer timeout. */
+const COMPLETE_TIMEOUT_MS = 5 * 60_000;
+
 export const uploadsApi = {
-  async create(payload: CreateUploadRequest): Promise<UploadJobDetail> {
-    const { data } = await api.post<UploadJobDetail>("/yt-channels/uploads", payload);
+  async create(payload: CreateUploadRequest, signal?: AbortSignal): Promise<CreateUploadResponse> {
+    const { data } = await api.post<CreateUploadResponse>("/yt-channels/uploads", payload, {
+      signal,
+    });
     return data;
   },
 
@@ -49,17 +55,27 @@ export const uploadsApi = {
     return data;
   },
 
-  async retry(id: string): Promise<UploadJobDetail | MessageResponse> {
-    const { data } = await api.post<UploadJobDetail | MessageResponse>(
-      `/yt-channels/uploads/${id}/retry`,
+  async mediaState(id: string, signal?: AbortSignal): Promise<MediaState> {
+    const { data } = await api.get<MediaState>(`/yt-channels/uploads/${id}/media`, { signal });
+    return data;
+  },
+
+  async completeMedia(id: string, signal?: AbortSignal): Promise<UploadJobDetail> {
+    const { data } = await api.post<UploadJobDetail>(
+      `/yt-channels/uploads/${id}/media/complete`,
+      undefined,
+      { timeout: COMPLETE_TIMEOUT_MS, signal },
     );
     return data;
   },
 
-  async cancel(id: string): Promise<UploadJobDetail | MessageResponse> {
-    const { data } = await api.post<UploadJobDetail | MessageResponse>(
-      `/yt-channels/uploads/${id}/cancel`,
-    );
+  async retry(id: string): Promise<UploadJobDetail> {
+    const { data } = await api.post<UploadJobDetail>(`/yt-channels/uploads/${id}/retry`);
+    return data;
+  },
+
+  async cancel(id: string): Promise<UploadJobDetail> {
+    const { data } = await api.post<UploadJobDetail>(`/yt-channels/uploads/${id}/cancel`);
     return data;
   },
 };

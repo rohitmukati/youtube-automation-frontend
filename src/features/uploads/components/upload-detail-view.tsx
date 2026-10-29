@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Ban, Clock, ExternalLink, RotateCcw } from "lucide-react";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -12,9 +13,21 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ResumeUploadControl } from "@/features/uploads/components/resume-upload-control";
 import { JobStatusBadge, TargetStatusBadge } from "@/features/uploads/components/status-badge";
+import { UploadProgressPanel } from "@/features/uploads/components/upload-progress-panel";
 import { useCancelUpload, useRetryUpload, useUpload } from "@/features/uploads/hooks";
+import {
+  canCancel,
+  canRetry,
+  describeHoursLeft,
+  fileRemovedForRetry,
+  hoursLeft,
+  isMediaAvailable,
+  needsFileToResume,
+} from "@/features/uploads/rules";
 import { categoryLabel, errorHints, thumbnailStatusLabel } from "@/features/uploads/status";
+import { uploadManager, useUploadSession } from "@/features/uploads/upload-manager";
 import { ApiError, getErrorMessage } from "@/lib/api/errors";
 import { formatBytes, pluralize } from "@/lib/utils";
 import { formatDateTime, formatRelative } from "@/lib/format";
@@ -31,8 +44,8 @@ function overallProgress(job: UploadJobDetail): number {
 }
 
 function TargetRow({ target }: { target: UploadTarget }) {
-  const inFlight =
-    target.status === "uploading" || target.status === "retrying" || target.status === "pending";
+  const inFlight = target.status === "uploading";
+  const quotaPaused = target.status === "retrying" && target.error_code === "quota_exceeded";
   const thumbLabel = thumbnailStatusLabel[target.thumbnail_status];
 
   return (
@@ -82,7 +95,16 @@ function TargetRow({ target }: { target: UploadTarget }) {
         {thumbLabel ? <span>{thumbLabel}</span> : null}
       </div>
 
-      {target.error_message ? (
+      {target.status === "retrying" ? (
+        <Alert
+          tone="warning"
+          title={quotaPaused ? "Paused until the daily limit resets" : "Will try again"}
+        >
+          {quotaPaused
+            ? "The daily YouTube limit was reached. This channel continues by itself after the reset, no action needed."
+            : (target.error_message ?? null)}
+        </Alert>
+      ) : target.error_message ? (
         <Alert tone="danger" title={target.error_message}>
           {target.error_code ? (errorHints[target.error_code] ?? null) : null}
         </Alert>
@@ -109,6 +131,8 @@ export function UploadDetailView({ id }: { id: string }) {
   const { data: job, isLoading, isError, error, refetch } = useUpload(id);
   const retry = useRetryUpload(id);
   const cancel = useCancelUpload(id);
+  const queryClient = useQueryClient();
+  const session = useUploadSession(id);
   const [confirmCancel, setConfirmCancel] = React.useState(false);
 
   const back = (
@@ -164,7 +188,12 @@ export function UploadDetailView({ id }: { id: string }) {
   }
 
   const active = job.active_count > 0;
-  const canRetry = job.failed_count > 0 && !active;
+  const retryable = canRetry(job);
+  const cancellable = canCancel(job);
+  const uploadingMedia = job.status === "uploading_media";
+  const fileGone = fileRemovedForRetry(job);
+  const fileStored = job.failed_count > 0 && isMediaAvailable(job);
+  const hours = hoursLeft(job);
   const progress = overallProgress(job);
 
   return (
@@ -185,12 +214,12 @@ export function UploadDetailView({ id }: { id: string }) {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          {canRetry ? (
+          {retryable ? (
             <Button variant="outline" onClick={() => retry.mutate()} loading={retry.isPending}>
               <RotateCcw /> Retry failed
             </Button>
           ) : null}
-          {active ? (
+          {cancellable ? (
             <Button variant="danger-outline" onClick={() => setConfirmCancel(true)}>
               <Ban /> Cancel unfinished
             </Button>
@@ -198,33 +227,83 @@ export function UploadDetailView({ id }: { id: string }) {
         </div>
       </header>
 
-      <Card>
-        <CardBody className="flex flex-col gap-5">
-          <div className="flex items-center justify-between gap-4">
-            <p className="text-foreground text-sm font-medium">
-              {active ? "Publishing in progress" : "Finished"}
-            </p>
-            <p className="text-muted-foreground text-sm tabular-nums">{Math.round(progress)}%</p>
-          </div>
-          <Progress
-            value={progress}
-            tone={
-              job.status === "completed"
-                ? "success"
-                : job.status === "failed"
-                  ? "danger"
-                  : "default"
-            }
-            label="Overall progress"
-          />
-          <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <Detail label="Channels">{job.total_channels}</Detail>
-            <Detail label="Published">{job.done_count}</Detail>
-            <Detail label="In progress">{job.active_count}</Detail>
-            <Detail label="Failed or cancelled">{job.failed_count + job.cancelled_count}</Detail>
-          </dl>
-        </CardBody>
-      </Card>
+      {fileGone ? (
+        <Alert
+          tone="warning"
+          title="The video file is no longer stored"
+          action={
+            <Button asChild size="sm" variant="outline">
+              <Link href={`/uploads/new?again=${job.id}`}>Publish again</Link>
+            </Button>
+          }
+        >
+          Failed channels cannot be retried because the video was removed from the cloud. Publish it
+          again to send it to those channels.
+        </Alert>
+      ) : null}
+      {fileStored && hours !== null ? (
+        <Alert tone="info">
+          The video stays available for about {describeHoursLeft(hours)} so you can retry the failed
+          channels.
+        </Alert>
+      ) : null}
+
+      {uploadingMedia ? (
+        <Card>
+          <CardBody className="flex flex-col gap-5">
+            {session ? (
+              <UploadProgressPanel
+                session={session}
+                cancelling={cancel.isPending}
+                onCancel={() => setConfirmCancel(true)}
+                onRetry={() => uploadManager.retry(id, queryClient)}
+                onDismiss={() => uploadManager.dismiss(id)}
+              />
+            ) : needsFileToResume(job) ? (
+              <div className="flex flex-col items-start gap-3">
+                <div>
+                  <p className="text-foreground text-sm font-medium">This upload was interrupted</p>
+                  <p className="text-muted-foreground mt-1 text-[13px]">
+                    Select the same file again ({job.source_file_name}) to continue. Only the
+                    missing parts are sent.
+                  </p>
+                </div>
+                <ResumeUploadControl job={job} size="md" variant="primary" />
+              </div>
+            ) : (
+              <p className="text-muted-foreground text-sm">Preparing the upload…</p>
+            )}
+          </CardBody>
+        </Card>
+      ) : (
+        <Card>
+          <CardBody className="flex flex-col gap-5">
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-foreground text-sm font-medium">
+                {active ? "Publishing in progress" : "Finished"}
+              </p>
+              <p className="text-muted-foreground text-sm tabular-nums">{Math.round(progress)}%</p>
+            </div>
+            <Progress
+              value={progress}
+              tone={
+                job.status === "completed"
+                  ? "success"
+                  : job.status === "failed"
+                    ? "danger"
+                    : "default"
+              }
+              label="Overall progress"
+            />
+            <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <Detail label="Channels">{job.total_channels}</Detail>
+              <Detail label="Published">{job.done_count}</Detail>
+              <Detail label="In progress">{job.active_count}</Detail>
+              <Detail label="Failed or cancelled">{job.failed_count + job.cancelled_count}</Detail>
+            </dl>
+          </CardBody>
+        </Card>
+      )}
 
       <div className="grid items-start gap-4 sm:gap-6 lg:grid-cols-[minmax(0,1fr)_21rem]">
         <Card>
@@ -279,9 +358,13 @@ export function UploadDetailView({ id }: { id: string }) {
       <ConfirmDialog
         open={confirmCancel}
         onOpenChange={setConfirmCancel}
-        title="Cancel unfinished channels?"
-        description="Channels that already published are not affected. Unfinished channels will stop and can be retried later."
-        confirmLabel="Cancel uploads"
+        title={uploadingMedia ? "Cancel this upload?" : "Cancel unfinished channels?"}
+        description={
+          uploadingMedia
+            ? "The video upload stops and the parts already sent are deleted. To publish it you will need to start again."
+            : "Channels that already published are not affected. Unfinished channels will stop and can be retried later."
+        }
+        confirmLabel={uploadingMedia ? "Cancel upload" : "Cancel uploads"}
         onConfirm={() => cancel.mutateAsync()}
       />
     </div>
