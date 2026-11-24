@@ -149,6 +149,7 @@ export interface CreateUploadRequest {
   default_language: string | null;
   notify_subscribers: boolean;
   thumbnail_file_id: UUID | null;
+  channel_metadata?: ChannelUploadMetadata[];
 }
 
 export interface DirectUploadRequest {
@@ -164,6 +165,7 @@ export interface DirectUploadRequest {
   default_language: string | null;
   notify_subscribers: boolean;
   thumbnail_file_id: UUID | null;
+  channel_metadata?: ChannelUploadMetadata[];
 }
 
 export interface PartUrl {
@@ -744,4 +746,22 @@ export interface AIReportList {
   total: number;
   limit: number;
   offset: number;
+}
+
+export interface ChannelUploadMetadata {
+  account_id: UUID;
+  title: string | null;
+  description: string | null;
+  tags: string[];
+}
+
+export interface GenerateChannelMetadataRequest {
+  title: string;
+  description: string;
+  tags: string[];
+  account_ids: UUID[];
+}
+
+export interface GenerateChannelMetadataResponse {
+  channels: ChannelUploadMetadata[];
 }

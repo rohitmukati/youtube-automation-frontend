@@ -8,7 +8,12 @@ import { isJobFinished } from "@/features/uploads/rules";
 import { uploadManager } from "@/features/uploads/upload-manager";
 import { ApiError, getErrorMessage } from "@/lib/api/errors";
 import { queryKeys } from "@/lib/query-keys";
-import type { CreateUploadRequest, DirectUploadRequest, UploadJobStatus } from "@/types/api";
+import type {
+  CreateUploadRequest,
+  DirectUploadRequest,
+  GenerateChannelMetadataRequest,
+  UploadJobStatus,
+} from "@/types/api";
 
 export function isActiveStatus(status: UploadJobStatus): boolean {
   return (ACTIVE_JOB_STATUSES as readonly string[]).includes(status);
@@ -50,6 +55,13 @@ export function useQuota() {
     queryKey: queryKeys.uploads.quota(),
     queryFn: uploadsApi.quota,
     staleTime: 30_000,
+  });
+}
+
+export function useGenerateChannelMetadata() {
+  return useMutation({
+    mutationFn: (payload: GenerateChannelMetadataRequest) =>
+      uploadsApi.generateChannelMetadata(payload),
   });
 }
 

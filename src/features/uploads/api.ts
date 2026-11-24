@@ -8,6 +8,8 @@ import type {
   UploadJobStatus,
   UploadQuota,
   DirectUploadRequest,
+  GenerateChannelMetadataRequest,
+  GenerateChannelMetadataResponse,
 } from "@/types/api";
 
 export interface UploadListParams {
@@ -92,6 +94,18 @@ export const uploadsApi = {
 
   async cancel(id: string): Promise<UploadJobDetail> {
     const { data } = await api.post<UploadJobDetail>(`/yt-channels/uploads/${id}/cancel`);
+    return data;
+  },
+
+  async generateChannelMetadata(
+    payload: GenerateChannelMetadataRequest,
+    signal?: AbortSignal,
+  ): Promise<GenerateChannelMetadataResponse> {
+    const { data } = await api.post<GenerateChannelMetadataResponse>(
+      "/yt-channels/uploads/metadata/generate",
+      payload,
+      { signal, timeout: 120_000 },
+    );
     return data;
   },
 };

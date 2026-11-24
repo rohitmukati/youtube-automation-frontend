@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CalendarClock, CircleCheck, Film, ImageIcon, Send, X } from "lucide-react";
+import { CalendarClock, CircleCheck, Film, ImageIcon, Send, Sparkles, X } from "lucide-react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/shared/page-header";
@@ -24,14 +24,24 @@ import { StoragePickerDialog } from "@/features/storage/components/storage-picke
 import { ChannelPicker } from "@/features/uploads/components/channel-picker";
 import { UnfinishedUploadsBanner } from "@/features/uploads/components/unfinished-uploads-banner";
 import { takePendingVideo } from "@/features/uploads/file-handoff";
-import { useCreateDirectUpload, useQuota, useUpload } from "@/features/uploads/hooks";
+import {
+  useCreateDirectUpload,
+  useGenerateChannelMetadata,
+  useQuota,
+  useUpload,
+} from "@/features/uploads/hooks";
 import { publishSchema, type PublishValues } from "@/features/uploads/schemas";
 import { LANGUAGES, YOUTUBE_CATEGORIES } from "@/features/uploads/status";
 import { validateVideoFile, VIDEO_ACCEPT } from "@/features/uploads/video-file";
 import { toApiError } from "@/lib/api/errors";
 import { applyServerErrors } from "@/lib/forms";
 import { cn, formatBytes, pluralize, toLocalInputValue } from "@/lib/utils";
-import type { DirectUploadRequest, PrivacyStatus, StorageFile } from "@/types/api";
+import type {
+  ChannelUploadMetadata,
+  DirectUploadRequest,
+  PrivacyStatus,
+  StorageFile,
+} from "@/types/api";
 
 function titleFromFileName(name: string): string {
   return name
@@ -75,6 +85,7 @@ export function PublishForm() {
   const accountsQuery = useAccounts();
   const quotaQuery = useQuota();
   const create = useCreateDirectUpload();
+  const generateMetadata = useGenerateChannelMetadata();
   const againQuery = useUpload(againId ?? "", Boolean(againId));
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -85,6 +96,7 @@ export function PublishForm() {
   const [thumbnailPicker, setThumbnailPicker] = React.useState(false);
   const [dragging, setDragging] = React.useState(false);
   const [copiedFrom, setCopiedFrom] = React.useState(false);
+  const [channelMetadata, setChannelMetadata] = React.useState<Record<string, ChannelUploadMetadata>>({});
 
   // The form is locked while the backend receives and processes the direct upload.
   const locked = create.isPending;
@@ -179,6 +191,9 @@ export function PublishForm() {
       default_language: data.language || null,
       notify_subscribers: data.notifySubscribers,
       thumbnail_file_id: data.thumbnailFileId,
+      channel_metadata: data.accountIds
+        .map((accountId) => channelMetadata[accountId])
+        .filter((item): item is ChannelUploadMetadata => Boolean(item)),
     };
     create.mutate(
       { file, payload: request },
@@ -396,6 +411,42 @@ export function PublishForm() {
             </Section>
 
             <Section title="Channels" description="Choose where this video should be published.">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="text-muted-foreground text-sm">
+                  Generate unique metadata or set it manually for each channel.
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  loading={generateMetadata.isPending}
+                  disabled={values.accountIds.length === 0 || !values.title.trim()}
+                  onClick={() => {
+                    generateMetadata.mutate(
+                      {
+                        title: values.title,
+                        description: values.description,
+                        tags: values.tags,
+                        account_ids: values.accountIds,
+                      },
+                      {
+                        onSuccess: (response) => {
+                          setChannelMetadata((current) => ({
+                            ...current,
+                            ...Object.fromEntries(
+                              response.channels.map((item) => [item.account_id, item]),
+                            ),
+                          }));
+                          toast.success("Channel metadata generated.");
+                        },
+                        onError: (error) => toast.error(toApiError(error).message),
+                      },
+                    );
+                  }}
+                >
+                  <Sparkles /> Generate with AI
+                </Button>
+              </div>
+
               <Controller
                 control={form.control}
                 name="accountIds"
@@ -414,6 +465,81 @@ export function PublishForm() {
                 )}
               />
             </Section>
+
+            {values.accountIds.length > 0 ? (
+              <div className="flex flex-col gap-4">
+                {accountList
+                  .filter((account) => values.accountIds.includes(account.id))
+                  .map((account) => {
+                    const metadata = channelMetadata[account.id];
+                    return (
+                      <details key={account.id} className="border-border rounded-2xl border p-4">
+                        <summary className="cursor-pointer text-sm font-medium">
+                          {account.channel_title}
+                          <span className="text-muted-foreground ml-2 text-xs">
+                            {metadata ? "Custom metadata" : "Uses master metadata"}
+                          </span>
+                        </summary>
+                        <div className="mt-4 flex flex-col gap-3">
+                          <Field label="Channel title">
+                            <Input
+                              value={metadata?.title ?? ""}
+                              maxLength={LIMITS.titleMax}
+                              placeholder="Blank uses the master title"
+                              onChange={(event) => {
+                                setChannelMetadata((current) => ({
+                                  ...current,
+                                  [account.id]: {
+                                    account_id: account.id,
+                                    title: event.target.value || null,
+                                    description: current[account.id]?.description ?? null,
+                                    tags: current[account.id]?.tags ?? [],
+                                  },
+                                }));
+                              }}
+                            />
+                          </Field>
+                          <Field label="Channel description">
+                            <Textarea
+                              rows={4}
+                              value={metadata?.description ?? ""}
+                              placeholder="Blank uses the master description"
+                              onChange={(event) => {
+                                setChannelMetadata((current) => ({
+                                  ...current,
+                                  [account.id]: {
+                                    account_id: account.id,
+                                    title: current[account.id]?.title ?? null,
+                                    description: event.target.value || null,
+                                    tags: current[account.id]?.tags ?? [],
+                                  },
+                                }));
+                              }}
+                            />
+                          </Field>
+                          <Field label="Channel tags" optional>
+                            <TagInput
+                              value={metadata?.tags ?? []}
+                              onChange={(tags) => {
+                                setChannelMetadata((current) => ({
+                                  ...current,
+                                  [account.id]: {
+                                    account_id: account.id,
+                                    title: current[account.id]?.title ?? null,
+                                    description: current[account.id]?.description ?? null,
+                                    tags,
+                                  },
+                                }));
+                              }}
+                              maxTagLength={LIMITS.tagMax}
+                            />
+                          </Field>
+                        </div>
+                      </details>
+                    );
+                  })}
+              </div>
+            ) : null}
 
             <Section title="Visibility and schedule">
               <Controller
