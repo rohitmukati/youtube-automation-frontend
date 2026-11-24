@@ -48,6 +48,7 @@ describe("resetPasswordSchema", () => {
 describe("publishSchema", () => {
   const base = {
     storageFileId: "file-1",
+    videoFile: new File([new Uint8Array([0, 1])], "episode.mp4", { type: "video/mp4" }),
     thumbnailFileId: null,
     title: "Episode 1",
     description: "",

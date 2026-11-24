@@ -8,7 +8,7 @@ import { isJobFinished } from "@/features/uploads/rules";
 import { uploadManager } from "@/features/uploads/upload-manager";
 import { ApiError, getErrorMessage } from "@/lib/api/errors";
 import { queryKeys } from "@/lib/query-keys";
-import type { CreateUploadRequest, UploadJobStatus } from "@/types/api";
+import type { CreateUploadRequest, DirectUploadRequest, UploadJobStatus } from "@/types/api";
 
 export function isActiveStatus(status: UploadJobStatus): boolean {
   return (ACTIVE_JOB_STATUSES as readonly string[]).includes(status);
@@ -50,6 +50,20 @@ export function useQuota() {
     queryKey: queryKeys.uploads.quota(),
     queryFn: uploadsApi.quota,
     staleTime: 30_000,
+  });
+}
+
+export function useCreateDirectUpload() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ file, payload }: { file: File; payload: DirectUploadRequest }) =>
+      uploadsApi.createDirect(file, payload),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.uploads.all }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.uploads.quota() }),
+      ]);
+    },
   });
 }
 

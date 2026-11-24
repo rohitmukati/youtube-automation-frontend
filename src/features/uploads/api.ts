@@ -7,6 +7,7 @@ import type {
   UploadJobListResponse,
   UploadJobStatus,
   UploadQuota,
+  DirectUploadRequest,
 } from "@/types/api";
 
 export interface UploadListParams {
@@ -23,6 +24,21 @@ export interface UploadListParams {
 const COMPLETE_TIMEOUT_MS = 5 * 60_000;
 
 export const uploadsApi = {
+  async createDirect(
+    file: File,
+    payload: DirectUploadRequest,
+    signal?: AbortSignal,
+  ): Promise<UploadJobDetail> {
+    const form = new FormData();
+    form.append("file", file, file.name);
+    form.append("metadata", JSON.stringify(payload));
+    const { data } = await api.post<UploadJobDetail>("/yt-channels/uploads/direct", form, {
+      signal,
+      timeout: 0,
+    });
+    return data;
+  },
+
   async create(payload: CreateUploadRequest, signal?: AbortSignal): Promise<CreateUploadResponse> {
     const { data } = await api.post<CreateUploadResponse>("/yt-channels/uploads", payload, {
       signal,

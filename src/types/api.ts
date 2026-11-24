@@ -151,6 +151,21 @@ export interface CreateUploadRequest {
   thumbnail_file_id: UUID | null;
 }
 
+export interface DirectUploadRequest {
+  client_request_id?: string;
+  account_ids: UUID[];
+  title: string;
+  description: string;
+  tags: string[];
+  category_id: string;
+  privacy_status: PrivacyStatus;
+  publish_at: string | null;
+  made_for_kids: boolean;
+  default_language: string | null;
+  notify_subscribers: boolean;
+  thumbnail_file_id: UUID | null;
+}
+
 export interface PartUrl {
   part_number: number;
   size_bytes: number;

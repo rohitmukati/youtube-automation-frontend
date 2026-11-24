@@ -3,7 +3,6 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarClock, CircleCheck, Film, ImageIcon, Send, X } from "lucide-react";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -24,17 +23,15 @@ import { FilePreview } from "@/features/storage/components/file-card";
 import { StoragePickerDialog } from "@/features/storage/components/storage-picker-dialog";
 import { ChannelPicker } from "@/features/uploads/components/channel-picker";
 import { UnfinishedUploadsBanner } from "@/features/uploads/components/unfinished-uploads-banner";
-import { UploadProgressPanel } from "@/features/uploads/components/upload-progress-panel";
 import { takePendingVideo } from "@/features/uploads/file-handoff";
-import { useCancelUpload, useCreateUpload, useQuota, useUpload } from "@/features/uploads/hooks";
+import { useCreateDirectUpload, useQuota, useUpload } from "@/features/uploads/hooks";
 import { publishSchema, type PublishValues } from "@/features/uploads/schemas";
 import { LANGUAGES, YOUTUBE_CATEGORIES } from "@/features/uploads/status";
-import { uploadManager, useUploadSession } from "@/features/uploads/upload-manager";
 import { validateVideoFile, VIDEO_ACCEPT } from "@/features/uploads/video-file";
 import { toApiError } from "@/lib/api/errors";
 import { applyServerErrors } from "@/lib/forms";
 import { cn, formatBytes, pluralize, toLocalInputValue } from "@/lib/utils";
-import type { CreateUploadRequest, PrivacyStatus, StorageFile } from "@/types/api";
+import type { DirectUploadRequest, PrivacyStatus, StorageFile } from "@/types/api";
 
 function titleFromFileName(name: string): string {
   return name
@@ -72,30 +69,25 @@ function Section({
 
 export function PublishForm() {
   const router = useRouter();
-  const queryClient = useQueryClient();
   const params = useSearchParams();
   const againId = params.get("again");
 
   const accountsQuery = useAccounts();
   const quotaQuery = useQuota();
-  const create = useCreateUpload();
+  const create = useCreateDirectUpload();
   const againQuery = useUpload(againId ?? "", Boolean(againId));
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const requestIdRef = React.useRef<string | null>(null);
   const prefilledRef = React.useRef(false);
-  const navigatedRef = React.useRef(false);
 
+  const [requestId, setRequestId] = React.useState<string | null>(null);
   const [thumbnail, setThumbnail] = React.useState<StorageFile | null>(null);
   const [thumbnailPicker, setThumbnailPicker] = React.useState(false);
   const [dragging, setDragging] = React.useState(false);
-  const [activeJobId, setActiveJobId] = React.useState<string | null>(null);
   const [copiedFrom, setCopiedFrom] = React.useState(false);
 
-  const session = useUploadSession(activeJobId);
-  const cancel = useCancelUpload(activeJobId ?? "");
-  // The form is locked from the moment Publish is pressed until the video is on its way.
-  const locked = create.isPending || session !== null;
+  // The form is locked while the backend receives and processes the direct upload.
+  const locked = create.isPending;
 
   const form = useForm<PublishValues>({
     resolver: zodResolver(publishSchema),
@@ -118,16 +110,6 @@ export function PublishForm() {
   const { errors } = form.formState;
   const values = useWatch({ control: form.control }) as PublishValues;
   const videoFile = values.videoFile ?? null;
-
-  // A new request id is needed whenever the user changes anything after a failed attempt.
-  const valuesKey = JSON.stringify({
-    ...values,
-    videoFile: videoFile?.name,
-    size: videoFile?.size,
-  });
-  React.useEffect(() => {
-    requestIdRef.current = null;
-  }, [valuesKey]);
 
   const selectVideo = React.useCallback(
     (file: File) => {
@@ -173,14 +155,6 @@ export function PublishForm() {
     setCopiedFrom(true);
   }, [againJob, accounts, form]);
 
-  // Phase A finished: the server publishes from here, so show the per channel progress.
-  React.useEffect(() => {
-    if (session?.phase === "done" && activeJobId && !navigatedRef.current) {
-      navigatedRef.current = true;
-      router.push(`/uploads/${activeJobId}`);
-    }
-  }, [session?.phase, activeJobId, router]);
-
   const accountList = accounts ?? [];
   const quota = quotaQuery.data;
   const selectedCount = values.accountIds.length;
@@ -190,9 +164,9 @@ export function PublishForm() {
   function onSubmit(data: PublishValues) {
     const file = data.videoFile;
     if (overQuota || locked || !file) return;
-    const clientRequestId = (requestIdRef.current ??= newRequestId());
-    const request: CreateUploadRequest = {
-      file: { name: file.name, size_bytes: file.size, content_type: file.type || null },
+    const clientRequestId = requestId ?? newRequestId();
+    if (!requestId) setRequestId(clientRequestId);
+    const request: DirectUploadRequest = {
       client_request_id: clientRequestId,
       account_ids: data.accountIds,
       title: data.title.trim(),
@@ -206,56 +180,38 @@ export function PublishForm() {
       notify_subscribers: data.notifySubscribers,
       thumbnail_file_id: data.thumbnailFileId,
     };
-    create.mutate(request, {
-      onSuccess: ({ job, upload }) => {
-        requestIdRef.current = null;
-        navigatedRef.current = false;
-        setActiveJobId(job.id);
-        // The browser now sends the video straight to cloud storage, then calls `complete`.
-        uploadManager.start(job.id, file, upload, queryClient);
-      },
-      onError: (error) => {
-        const apiError = toApiError(error);
-        // Keep the request id after a network error so a repeat cannot create a second upload.
-        if (apiError.status !== 0) requestIdRef.current = null;
-        const { handled } = applyServerErrors(error, form.setError, {
-          title: "title",
-          description: "description",
-          tags: "tags",
-          publish_at: "publishAt",
-          account_ids: "accountIds",
-          "file.name": "videoFile",
-          "file.size_bytes": "videoFile",
-          "file.content_type": "videoFile",
-          thumbnail_file_id: "thumbnailFileId",
-        });
-        if (handled) return;
-        if (
-          apiError.code === "google_credentials_missing" ||
-          apiError.code === "google_credentials_invalid"
-        ) {
-          toast.error(apiError.message, {
-            action: { label: "Open settings", onClick: () => router.push("/accounts?oauth=1") },
+    create.mutate(
+      { file, payload: request },
+      {
+        onSuccess: (job) => {
+          setRequestId(null);
+          router.push(`/uploads/${job.id}`);
+        },
+        onError: (error) => {
+          const apiError = toApiError(error);
+          if (apiError.status !== 0) setRequestId(null);
+          const { handled } = applyServerErrors(error, form.setError, {
+            title: "title",
+            description: "description",
+            tags: "tags",
+            publish_at: "publishAt",
+            account_ids: "accountIds",
+            thumbnail_file_id: "thumbnailFileId",
           });
-          return;
-        }
-        toast.error(
-          apiError.code === "staging_busy"
-            ? "Uploads are very busy. Try again in a few minutes."
-            : apiError.message,
-        );
+          if (handled) return;
+          if (
+            apiError.code === "google_credentials_missing" ||
+            apiError.code === "google_credentials_invalid"
+          ) {
+            toast.error(apiError.message, {
+              action: { label: "Open settings", onClick: () => router.push("/accounts?oauth=1") },
+            });
+            return;
+          }
+          toast.error(apiError.message);
+        },
       },
-    });
-  }
-
-  function handleCancel() {
-    if (!activeJobId) return;
-    cancel.mutate(undefined, { onSettled: () => setActiveJobId(null) });
-  }
-
-  function handleDismiss() {
-    if (activeJobId) uploadManager.dismiss(activeJobId);
-    setActiveJobId(null);
+    );
   }
 
   const description = values.description;
@@ -271,7 +227,7 @@ export function PublishForm() {
         description="Choose a video from your computer, write its details once, and send it to every channel you select."
       />
 
-      <UnfinishedUploadsBanner excludeJobId={activeJobId} />
+      <UnfinishedUploadsBanner />
 
       {copiedFrom ? (
         <Alert tone="info" title="Details copied from an earlier publish">
@@ -281,18 +237,6 @@ export function PublishForm() {
 
       <div className="grid items-start gap-4 sm:gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="flex flex-col gap-4 sm:gap-6">
-          {session ? (
-            <Section title="Uploading your video">
-              <UploadProgressPanel
-                session={session}
-                cancelling={cancel.isPending}
-                onCancel={handleCancel}
-                onRetry={() => activeJobId && uploadManager.retry(activeJobId, queryClient)}
-                onDismiss={handleDismiss}
-              />
-            </Section>
-          ) : null}
-
           <fieldset
             disabled={locked}
             className="m-0 flex min-w-0 flex-col gap-4 border-0 p-0 sm:gap-6"
@@ -654,8 +598,8 @@ export function PublishForm() {
                   : "Publish"}
               </Button>
               <p className="text-muted-foreground text-center text-[13px]">
-                The video uploads to the cloud when you press Publish. After that you can close this
-                tab.
+                The backend receives the video and uploads it to each selected channel one by one.
+                The temporary file is deleted after processing.
               </p>
             </CardBody>
           </Card>
