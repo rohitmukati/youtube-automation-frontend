@@ -225,6 +225,7 @@ export interface UploadJobSummary {
   media_expires_at: string | null;
   source_file_name: string;
   source_size_bytes: number;
+  parallel_upload_limit: number;
   total_channels: number;
   done_count: number;
   failed_count: number;
