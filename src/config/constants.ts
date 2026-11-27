@@ -9,6 +9,7 @@ export const PROTECTED_PREFIXES = [
   "/dashboard",
   "/accounts",
   "/storage",
+  "/downloader",
   "/uploads",
   "/settings",
   "/youtube",

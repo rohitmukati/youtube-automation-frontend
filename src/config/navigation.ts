@@ -1,4 +1,5 @@
 import {
+  Download,
   History,
   House,
   ImageIcon,
@@ -29,6 +30,12 @@ export const primaryNav: NavItem[] = [
     quickAction: { href: "/accounts?connect=1", label: "Connect account" },
   },
   { label: "Thumbnails", href: "/storage", icon: ImageIcon, match: startsWith("/storage") },
+  {
+    label: "Video Downloader",
+    href: "/downloader",
+    icon: Download,
+    match: startsWith("/downloader"),
+  },
 ];
 
 export const channelNav: NavItem[] = [

@@ -4,6 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
   CornerDownLeft,
+  Download,
   FileSearch,
   History,
   House,
@@ -44,6 +45,13 @@ const staticCommands: Command[] = [
     href: "/storage",
     icon: ImageIcon,
     keywords: "storage library images thumbnails",
+  },
+  {
+    id: "downloader",
+    label: "Video Downloader",
+    href: "/downloader",
+    icon: Download,
+    keywords: "download youtube instagram reel video save",
   },
   {
     id: "publish",

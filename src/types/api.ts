@@ -766,3 +766,33 @@ export interface GenerateChannelMetadataRequest {
 export interface GenerateChannelMetadataResponse {
   channels: ChannelUploadMetadata[];
 }
+
+export type DownloaderPlatform = "youtube" | "instagram";
+
+export interface DownloadOption {
+  id: string;
+  kind: "video" | "audio";
+  label: string;
+  ext: string;
+  quality: number;
+  has_audio: boolean;
+  size_bytes: number | null;
+  /** True when video and sound are joined on the fly, so the total size is not known up front. */
+  needs_processing: boolean;
+}
+
+export interface VideoInfo {
+  platform: DownloaderPlatform;
+  source_url: string;
+  title: string;
+  uploader: string | null;
+  duration_seconds: number | null;
+  thumbnail_url: string | null;
+  options: DownloadOption[];
+}
+
+export interface PrepareDownloadResponse {
+  token: string;
+  filename: string;
+  expires_in: number;
+}
